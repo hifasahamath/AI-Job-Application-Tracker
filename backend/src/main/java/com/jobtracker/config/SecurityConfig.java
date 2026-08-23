@@ -55,8 +55,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public Auth Endpoints
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        // Public Health & Info
-                        .requestMatchers("/actuator/health", "/api/v1/health").permitAll()
+                        // Public Health, Info & Dev Console
+                        .requestMatchers("/actuator/health", "/api/v1/health", "/h2-console/**").permitAll()
                         // OpenAPI / Swagger Documentation
                         .requestMatchers(
                                 "/v3/api-docs/**",
@@ -69,7 +69,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
-                );
+                )
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

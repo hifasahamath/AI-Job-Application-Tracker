@@ -34,3 +34,4 @@ Thumbs.db
 
 # Docker data volume directory (if created locally)
 postgres_data/
+backend/data/
