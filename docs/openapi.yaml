@@ -1,0 +1,668 @@
+openapi: 3.0.3
+info:
+  title: AI Job Application Tracker REST API
+  description: |
+    Production-quality REST API for AI Job Application Tracker.
+    Exposes endpoints for user authentication, job application lifecycle management,
+    interview schedules, categorized notes, and Gemini AI-powered job matching analysis.
+    Managed and published through WSO2 API Platform Cloud Gateway.
+  version: 1.0.0
+  contact:
+    name: AI Job Tracker Engineering Team
+    email: developer@jobtracker.internal
+  license:
+    name: Apache 2.0
+    url: https://spring.io/licenses/apache-2.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local Spring Boot Backend Server
+  - url: https://api.cloud.wso2.com/t/jobtracker/v1
+    description: WSO2 API Platform Cloud Production Gateway
+  - url: https://sandbox.api.cloud.wso2.com/t/jobtracker/v1
+    description: WSO2 API Platform Cloud Sandbox Gateway
+
+paths:
+  /api/v1/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new user account with hashed password and returns a JWT bearer token.
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthApiResponse'
+        '409':
+          description: Email already registered
+        '422':
+          description: Validation error
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Authenticate user
+      description: Validates email and password credentials, returning a JWT bearer token.
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthApiResponse'
+        '401':
+          description: Invalid email or password
+
+  /api/v1/auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user profile
+      description: Retrieves the authenticated candidate's profile information.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileApiResponse'
+        '401':
+          description: Unauthorized
+
+  /api/v1/auth/profile:
+    put:
+      tags:
+        - Authentication
+      summary: Update candidate profile
+      description: Updates candidate's target role and skills summary for AI matching.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileApiResponse'
+
+  /api/v1/dashboard/metrics:
+    get:
+      tags:
+        - Dashboard & Analytics
+      summary: Get aggregated dashboard metrics
+      description: Returns pipeline status breakdown, upcoming interviews count, and stale action items.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Dashboard metrics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardMetricsApiResponse'
+
+  /api/v1/applications:
+    get:
+      tags:
+        - Job Applications
+      summary: Get paginated job applications
+      description: Retrieves applications with optional filtering by status, priority, company, and search query.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ApplicationStatus'
+        - name: priority
+          in: query
+          schema:
+            $ref: '#/components/schemas/Priority'
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            default: createdAt
+        - name: sortDir
+          in: query
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: DESC
+      responses:
+        '200':
+          description: Paginated applications list
+    post:
+      tags:
+        - Job Applications
+      summary: Create new job application
+      description: Creates a new job application and automatically associates or creates the company.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobApplicationRequest'
+      responses:
+        '201':
+          description: Application created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobApplicationApiResponse'
+
+  /api/v1/applications/all:
+    get:
+      tags:
+        - Job Applications
+      summary: Get all applications as flat list
+      description: Retrieves all applications for Kanban board rendering.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Flat list of all applications
+
+  /api/v1/applications/{id}:
+    get:
+      tags:
+        - Job Applications
+      summary: Get job application details
+      description: Retrieves complete application info including interviews, notes, and latest Gemini AI analysis.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Application details retrieved
+        '404':
+          description: Application not found
+    put:
+      tags:
+        - Job Applications
+      summary: Update job application
+      description: Updates job application details.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobApplicationRequest'
+      responses:
+        '200':
+          description: Application updated successfully
+    delete:
+      tags:
+        - Job Applications
+      summary: Delete job application
+      description: Deletes an application and all attached interviews and notes.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Application deleted successfully
+
+  /api/v1/applications/{id}/status:
+    patch:
+      tags:
+        - Job Applications
+      summary: Quick update application status
+      description: Transitions application status for Kanban board drag-and-drop.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusUpdateRequest'
+      responses:
+        '200':
+          description: Application status updated
+
+  /api/v1/ai/analyze:
+    post:
+      tags:
+        - AI Job Analysis
+      summary: Analyze job with Gemini AI
+      description: Sends job description and resume/skills to Gemini AI to compute match score, skill matrix, prep roadmap, and personalized interview questions.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiAnalysisRequest'
+      responses:
+        '200':
+          description: AI analysis completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiAnalysisApiResponse'
+        '503':
+          description: AI service unavailable or rate limit exceeded
+
+  /api/v1/ai/history:
+    get:
+      tags:
+        - AI Job Analysis
+      summary: Get AI analysis history
+      description: Retrieves user's previous Gemini job evaluations.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: AI analysis history list
+
+  /api/v1/interviews/upcoming:
+    get:
+      tags:
+        - Interviews
+      summary: Get upcoming interviews
+      description: Lists all future scheduled interviews across all applications.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Upcoming interviews list
+
+  /api/v1/interviews:
+    post:
+      tags:
+        - Interviews
+      summary: Schedule interview
+      description: Schedules a new interview round and auto-transitions application to INTERVIEW stage.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterviewRequest'
+      responses:
+        '201':
+          description: Interview scheduled successfully
+
+  /api/v1/notes:
+    post:
+      tags:
+        - Notes
+      summary: Add application note
+      description: Records a categorized note against a job application.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteRequest'
+      responses:
+        '201':
+          description: Note added successfully
+
+  /api/v1/health:
+    get:
+      tags:
+        - Dashboard & Analytics
+      summary: Health check endpoint
+      description: Public endpoint for WSO2 Gateway and monitoring probes.
+      responses:
+        '200':
+          description: Service is healthy
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Provide JWT token from /api/v1/auth/login or /api/v1/auth/register
+
+  schemas:
+    ApplicationStatus:
+      type: string
+      enum: [SAVED, APPLIED, SCREENING, INTERVIEW, OFFER, REJECTED, WITHDRAWN]
+
+    Priority:
+      type: string
+      enum: [LOW, MEDIUM, HIGH, DREAM_JOB]
+
+    WorkLocationType:
+      type: string
+      enum: [REMOTE, HYBRID, ONSITE]
+
+    RoundType:
+      type: string
+      enum: [SCREENING, TECHNICAL, BEHAVIORAL, SYSTEM_DESIGN, FINAL_ROUND, HR, OTHER]
+
+    InterviewStatus:
+      type: string
+      enum: [SCHEDULED, COMPLETED, CANCELLED, RESCHEDULED]
+
+    NoteCategory:
+      type: string
+      enum: [GENERAL, FOLLOW_UP, INTERVIEW_PREP, OFFER_DETAILS]
+
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - fullName
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        fullName:
+          type: string
+        targetRole:
+          type: string
+        skillsSummary:
+          type: string
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    UpdateProfileRequest:
+      type: object
+      required:
+        - fullName
+      properties:
+        fullName:
+          type: string
+        targetRole:
+          type: string
+        skillsSummary:
+          type: string
+
+    JobApplicationRequest:
+      type: object
+      required:
+        - jobTitle
+      properties:
+        companyId:
+          type: string
+          format: uuid
+        companyName:
+          type: string
+        jobTitle:
+          type: string
+        jobDescription:
+          type: string
+        jobUrl:
+          type: string
+        status:
+          $ref: '#/components/schemas/ApplicationStatus'
+        salaryMin:
+          type: number
+        salaryMax:
+          type: number
+        salaryCurrency:
+          type: string
+        workLocationType:
+          $ref: '#/components/schemas/WorkLocationType'
+        appliedDate:
+          type: string
+          format: date
+        deadline:
+          type: string
+          format: date
+        priority:
+          $ref: '#/components/schemas/Priority'
+
+    StatusUpdateRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: '#/components/schemas/ApplicationStatus'
+
+    InterviewRequest:
+      type: object
+      required:
+        - applicationId
+        - roundType
+        - scheduledAt
+      properties:
+        applicationId:
+          type: string
+          format: uuid
+        roundType:
+          $ref: '#/components/schemas/RoundType'
+        roundNumber:
+          type: integer
+        scheduledAt:
+          type: string
+          format: date-time
+        durationMinutes:
+          type: integer
+        meetingLink:
+          type: string
+        interviewerNames:
+          type: string
+        status:
+          $ref: '#/components/schemas/InterviewStatus'
+        notes:
+          type: string
+
+    NoteRequest:
+      type: object
+      required:
+        - applicationId
+        - content
+      properties:
+        applicationId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          $ref: '#/components/schemas/NoteCategory'
+
+    AiAnalysisRequest:
+      type: object
+      required:
+        - jobDescription
+      properties:
+        applicationId:
+          type: string
+          format: uuid
+        jobTitle:
+          type: string
+        companyName:
+          type: string
+        jobDescription:
+          type: string
+        resumeText:
+          type: string
+        skillsSummary:
+          type: string
+
+    AuthApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            token:
+              type: string
+            tokenType:
+              type: string
+            userId:
+              type: string
+              format: uuid
+            email:
+              type: string
+            fullName:
+              type: string
+            targetRole:
+              type: string
+
+    UserProfileApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            email:
+              type: string
+            fullName:
+              type: string
+            targetRole:
+              type: string
+            skillsSummary:
+              type: string
+
+    JobApplicationApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            jobTitle:
+              type: string
+            status:
+              $ref: '#/components/schemas/ApplicationStatus'
+
+    AiAnalysisApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            matchScore:
+              type: integer
+            analysisSummary:
+              type: string
+            matchingSkills:
+              type: array
+              items:
+                type: string
+            missingSkills:
+              type: array
+              items:
+                type: string
+
+    DashboardMetricsApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            totalApplications:
+              type: integer
+            upcomingInterviewsCount:
+              type: integer
+            totalAiAnalysesCount:
+              type: integer

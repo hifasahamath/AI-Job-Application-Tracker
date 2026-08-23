@@ -1,0 +1,36 @@
+# Environment and Secrets
+.env
+.env*.local
+*.key
+*.pem
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js & Frontend Build Outputs
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/node_modules/
+
+# Maven & Java Backend Build Outputs
+backend/target/
+backend/.maven/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE & OS Files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+*.log
+
+# Docker data volume directory (if created locally)
+postgres_data/

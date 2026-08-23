@@ -1,0 +1,393 @@
+{
+  "info": {
+    "name": "AI Job Application Tracker API",
+    "_postman_id": "847291a1-cf32-4876-9214-41b312781ef5",
+    "description": "Comprehensive Postman test collection for AI Job Application Tracker REST API with Spring Boot, PostgreSQL, Gemini AI, and WSO2 Gateway.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "jwtToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "testAppId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('jwtToken', jsonData.data.token);",
+                  "}",
+                  "pm.test('Status is 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"postman.candidate@jobtracker.dev\",\n  \"password\": \"Password123!\",\n  \"fullName\": \"Alex Mercer\",\n  \"targetRole\": \"Lead Backend Architect\",\n  \"skillsSummary\": \"Java 21, Spring Boot, PostgreSQL, Docker, Gemini AI, WSO2\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('jwtToken', jsonData.data.token);",
+                  "}",
+                  "pm.test('Status is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"postman.candidate@jobtracker.dev\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Job Applications",
+      "item": [
+        {
+          "name": "Create Application",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.id) {",
+                  "    pm.collectionVariables.set('testAppId', jsonData.data.id);",
+                  "}",
+                  "pm.test('Status is 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Stripe\",\n  \"jobTitle\": \"Staff Software Engineer - API Infrastructure\",\n  \"status\": \"APPLIED\",\n  \"priority\": \"DREAM_JOB\",\n  \"workLocationType\": \"REMOTE\",\n  \"salaryMin\": 175000,\n  \"salaryMax\": 220000,\n  \"salaryCurrency\": \"USD\",\n  \"jobDescription\": \"Join Stripe's API Platform team. Requirements: 6+ years experience building large scale REST APIs with Java/Spring Boot or Go, relational databases (PostgreSQL), distributed rate limiting, and gateway integration.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/applications",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "applications"]
+            }
+          }
+        },
+        {
+          "name": "List Applications with Filters",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/applications?status=APPLIED&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "applications"],
+              "query": [
+                { "key": "status", "value": "APPLIED" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Application Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/applications/{{testAppId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "applications", "{{testAppId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Application Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"INTERVIEW\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/applications/{{testAppId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "applications", "{{testAppId}}", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Gemini AI Analysis",
+      "item": [
+        {
+          "name": "Analyze Job with Gemini AI",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationId\": \"{{testAppId}}\",\n  \"jobTitle\": \"Staff Software Engineer - API Infrastructure\",\n  \"companyName\": \"Stripe\",\n  \"jobDescription\": \"Looking for a Staff Engineer with Java 21, Spring Boot, Spring Security, PostgreSQL, and API Gateway experience.\",\n  \"resumeText\": \"10 years of experience with Java, Spring Boot, microservices, PostgreSQL, and Docker.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ai/analyze",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ai", "analyze"]
+            }
+          }
+        },
+        {
+          "name": "Get AI Analysis History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ai/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ai", "history"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Interviews",
+      "item": [
+        {
+          "name": "Schedule Interview Round",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationId\": \"{{testAppId}}\",\n  \"roundType\": \"TECHNICAL\",\n  \"roundNumber\": 1,\n  \"scheduledAt\": \"2026-09-01T15:00:00Z\",\n  \"durationMinutes\": 60,\n  \"meetingLink\": \"https://meet.google.com/abc-postman-test\",\n  \"interviewerNames\": \"Alex Rivers (Principal Staff Architect)\",\n  \"notes\": \"System design & concurrency review\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/interviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "interviews"]
+            }
+          }
+        },
+        {
+          "name": "Get Upcoming Interviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/interviews/upcoming",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "interviews", "upcoming"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Notes",
+      "item": [
+        {
+          "name": "Add Application Note",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationId\": \"{{testAppId}}\",\n  \"title\": \"Recruiter Intro Call\",\n  \"content\": \"Great conversation regarding base compensation, equity vesting, and technical round timeline.\",\n  \"category\": \"FOLLOW_UP\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "notes"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Dashboard & Health",
+      "item": [
+        {
+          "name": "Get Dashboard Metrics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwtToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/dashboard/metrics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "dashboard", "metrics"]
+            }
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
