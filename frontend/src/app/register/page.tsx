@@ -30,7 +30,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(email.trim(), password, fullName.trim(), targetRole.trim(), skillsSummary.trim());
-      success('Account created successfully! Welcome to CAREER AI.');
+      success('Account created successfully! Welcome to Career AI.');
       router.push('/dashboard');
     } catch (err: any) {
       error(err.message || 'Registration failed. Email may already be in use.');
@@ -45,14 +45,14 @@ export default function RegisterPage() {
 
       <div className="w-full max-w-lg relative z-10 my-8">
         <div className="text-center mb-6">
-          <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl overflow-hidden shadow-lg shadow-cyan-500/25 mb-4 border-2 border-cyan-100 bg-white">
-            <img src="/logo.png" alt="CAREER AI Logo" className="h-full w-full object-cover" />
+          <div className="inline-flex h-16 w-16 items-center justify-center mb-3 hover:scale-105 transition-transform">
+            <img src="/logo.png" alt="Career AI Logo" className="h-full w-full object-contain" />
           </div>
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
             Create Your Account
           </h1>
           <p className="text-sm text-slate-500 mt-1 font-medium">
-            Supercharge your job applications with CAREER AI intelligent tracking
+            Supercharge your job applications with Career AI intelligent tracking
           </p>
         </div>
 

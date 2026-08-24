@@ -45,11 +45,11 @@ export default function LoginPage() {
       <div className="w-full max-w-md relative z-10">
         {/* Logo and header */}
         <div className="text-center mb-8">
-          <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl overflow-hidden shadow-lg shadow-cyan-500/25 mb-4 border-2 border-cyan-100 bg-white">
-            <img src="/logo.png" alt="CAREER AI Logo" className="h-full w-full object-cover" />
+          <div className="inline-flex h-16 w-16 items-center justify-center mb-3 hover:scale-105 transition-transform">
+            <img src="/logo.png" alt="Career AI Logo" className="h-full w-full object-contain" />
           </div>
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
-            Welcome to CAREER <span className="text-cyan-600">AI</span>
+            Welcome to Career <span className="text-sky-600">AI</span>
           </h1>
           <p className="text-sm text-slate-500 mt-1.5 font-medium">
             Your centralized job search tracker with Gemini AI matching

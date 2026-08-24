@@ -7,8 +7,13 @@ import { ToastProvider } from '../context/ToastContext';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'CAREER AI | AI Job Application Tracker & Interview Prep',
-  description: 'Production-quality AI Job Application Tracker powered by Gemini AI, Spring Boot REST API, and WSO2 API Platform Cloud.',
+  title: 'Career AI',
+  description: 'AI-powered job application tracker and career companion.',
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
 };
 
 export default function RootLayout({
