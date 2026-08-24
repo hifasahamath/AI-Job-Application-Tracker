@@ -23,7 +23,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-slate-50 text-slate-900 min-h-screen antialiased selection:bg-sky-500 selection:text-white`}>
+      <body className={`${inter.className} bg-gray-50 text-gray-900 min-h-screen antialiased`}>
         <AuthProvider>
           <ToastProvider>
             {children}

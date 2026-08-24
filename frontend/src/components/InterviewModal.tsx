@@ -40,7 +40,6 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
       setRoundNumber(interviewToEdit.roundNumber || 1);
       if (interviewToEdit.scheduledAt) {
         const dt = new Date(interviewToEdit.scheduledAt);
-        // Format to local YYYY-MM-DD
         const year = dt.getFullYear();
         const month = String(dt.getMonth() + 1).padStart(2, '0');
         const day = String(dt.getDate()).padStart(2, '0');
@@ -100,10 +99,10 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
       let result: Interview;
       if (interviewToEdit && interviewToEdit.id) {
         result = await api.updateInterview(interviewToEdit.id, payload);
-        success('Interview updated successfully');
+        success('Interview updated');
       } else {
         result = await api.scheduleInterview(payload);
-        success('Interview scheduled successfully');
+        success('Interview scheduled');
       }
 
       onSuccess(result);
@@ -115,123 +114,72 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
     }
   };
 
+  const inputClass = "w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-shadow";
+  const labelClass = "block text-sm font-medium text-gray-700 mb-1";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-fade-in overflow-y-auto">
-      <div className="relative w-full max-w-lg bg-white border border-slate-200 rounded-3xl shadow-2xl p-6 sm:p-7 my-8">
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100">
-              <Calendar className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">
-                {interviewToEdit ? 'Edit Interview Round' : 'Schedule Interview Round'}
-              </h2>
-              <p className="text-xs text-slate-500">Track logistics, meeting links, and prep points</p>
-            </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/30 backdrop-blur-[2px] animate-fade-in overflow-y-auto">
+      <div className="relative w-full max-w-lg bg-white border border-gray-200 rounded-lg shadow-lg p-5 sm:p-6 my-8">
+        <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+          <div>
+            <h2 className="text-base font-semibold text-gray-900">
+              {interviewToEdit ? 'Edit Interview' : 'Schedule Interview'}
+            </h2>
+            <p className="text-xs text-gray-500 mt-0.5">Set date, time, and meeting details</p>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors"
+            className="text-gray-400 hover:text-gray-700 p-1 rounded-md hover:bg-gray-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-5">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Round Type
-              </label>
-              <select
-                value={roundType}
-                onChange={(e) => setRoundType(e.target.value as RoundType)}
-                className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-colors"
-              >
+              <label className={labelClass}>Round Type</label>
+              <select value={roundType} onChange={(e) => setRoundType(e.target.value as RoundType)} className={inputClass}>
                 <option value="SCREENING">Screening</option>
-                <option value="TECHNICAL">Technical Coding</option>
+                <option value="TECHNICAL">Technical</option>
                 <option value="SYSTEM_DESIGN">System Design</option>
-                <option value="BEHAVIORAL">Behavioral / Culture</option>
-                <option value="FINAL_ROUND">Final Round / Executive</option>
-                <option value="HR">HR & Offer Discussion</option>
+                <option value="BEHAVIORAL">Behavioral</option>
+                <option value="FINAL_ROUND">Final Round</option>
+                <option value="HR">HR & Offer</option>
                 <option value="OTHER">Other</option>
               </select>
             </div>
-
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Round Number
-              </label>
-              <input
-                type="number"
-                min={1}
-                max={10}
-                value={roundNumber}
-                onChange={(e) => setRoundNumber(parseInt(e.target.value) || 1)}
-                className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-colors"
-              />
+              <label className={labelClass}>Round #</label>
+              <input type="number" min={1} max={10} value={roundNumber} onChange={(e) => setRoundNumber(parseInt(e.target.value) || 1)} className={inputClass} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Date <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="date"
-                required
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-colors"
-              />
+              <label className={labelClass}>Date <span className="text-red-500">*</span></label>
+              <input type="date" required value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
             </div>
-
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Time <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="time"
-                required
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-colors"
-              />
+              <label className={labelClass}>Time <span className="text-red-500">*</span></label>
+              <input type="time" required value={time} onChange={(e) => setTime(e.target.value)} className={inputClass} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Duration
-              </label>
-              <div className="relative">
-                <Clock className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-                <select
-                  value={durationMinutes}
-                  onChange={(e) => setDurationMinutes(parseInt(e.target.value))}
-                  className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-colors"
-                >
-                  <option value={30}>30 mins</option>
-                  <option value={45}>45 mins</option>
-                  <option value={60}>60 mins (1 hr)</option>
-                  <option value={90}>90 mins</option>
-                  <option value={120}>2 hours</option>
-                </select>
-              </div>
+              <label className={labelClass}>Duration</label>
+              <select value={durationMinutes} onChange={(e) => setDurationMinutes(parseInt(e.target.value))} className={inputClass}>
+                <option value={30}>30 min</option>
+                <option value={45}>45 min</option>
+                <option value={60}>1 hour</option>
+                <option value={90}>90 min</option>
+                <option value={120}>2 hours</option>
+              </select>
             </div>
-
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Status
-              </label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as InterviewStatus)}
-                className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-colors"
-              >
+              <label className={labelClass}>Status</label>
+              <select value={status} onChange={(e) => setStatus(e.target.value as InterviewStatus)} className={inputClass}>
                 <option value="SCHEDULED">Scheduled</option>
                 <option value="COMPLETED">Completed</option>
                 <option value="CANCELLED">Cancelled</option>
@@ -241,64 +189,32 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Meeting Video Link
-            </label>
+            <label className={labelClass}>Meeting Link</label>
             <div className="relative">
-              <Video className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-              <input
-                type="url"
-                placeholder="https://meet.google.com/... or Zoom link"
-                value={meetingLink}
-                onChange={(e) => setMeetingLink(e.target.value)}
-                className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-colors"
-              />
+              <Video className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+              <input type="url" placeholder="https://meet.google.com/…" value={meetingLink} onChange={(e) => setMeetingLink(e.target.value)} className={`${inputClass} pl-9`} />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Interviewer Name(s) & Titles
-            </label>
+            <label className={labelClass}>Interviewer(s)</label>
             <div className="relative">
-              <UserCheck className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                placeholder="e.g. Sarah Connor (Staff Engineer), John Reese (EM)"
-                value={interviewerNames}
-                onChange={(e) => setInterviewerNames(e.target.value)}
-                className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-colors"
-              />
+              <UserCheck className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+              <input type="text" placeholder="e.g. Sarah Connor (Staff Eng)" value={interviewerNames} onChange={(e) => setInterviewerNames(e.target.value)} className={`${inputClass} pl-9`} />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Interview Notes & Preparation Targets
-            </label>
-            <textarea
-              rows={3}
-              placeholder="Topics to emphasize, questions to ask the interviewer, or logistics..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-colors resize-none leading-relaxed"
-            />
+            <label className={labelClass}>Notes</label>
+            <textarea rows={3} placeholder="Prep topics, questions to ask…" value={notes} onChange={(e) => setNotes(e.target.value)} className={`${inputClass} resize-none leading-relaxed`} />
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-            >
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-600/20 transition-all disabled:opacity-50 active:scale-95"
-            >
-              {loading ? <span>Saving...</span> : <span>Save Schedule</span>}
+            <button type="submit" disabled={loading} className="inline-flex items-center gap-2 px-5 py-2 rounded-md text-sm font-medium bg-gray-900 hover:bg-gray-800 text-white transition-colors disabled:opacity-50">
+              {loading ? 'Saving…' : 'Save'}
             </button>
           </div>
         </form>

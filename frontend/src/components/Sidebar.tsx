@@ -6,11 +6,10 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Kanban,
-  Table,
+  List,
   Sparkles,
   Calendar,
   FileText,
-  FileCode,
   X
 } from 'lucide-react';
 
@@ -24,34 +23,30 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen = false, onCloseM
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Kanban Pipeline', href: '/applications/pipeline', icon: Kanban },
-    { name: 'Applications Table', href: '/applications', icon: Table },
-    { name: 'AI Analyzer Studio', href: '/ai-analyzer', icon: Sparkles, badge: 'Gemini' },
-    { name: 'Interview Schedules', href: '/interviews', icon: Calendar },
-    { name: 'Profile & Master CV', href: '/profile', icon: FileText },
+    { name: 'Pipeline', href: '/applications/pipeline', icon: Kanban },
+    { name: 'Applications', href: '/applications', icon: List },
+    { name: 'AI Analyzer', href: '/ai-analyzer', icon: Sparkles },
+    { name: 'Interviews', href: '/interviews', icon: Calendar },
+    { name: 'Profile & Resume', href: '/profile', icon: FileText },
   ];
 
   const content = (
-    <div className="flex flex-col h-full justify-between p-4">
-      <div className="space-y-1">
-        <div className="flex items-center justify-between px-3 py-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            Workspace
+    <div className="flex flex-col h-full justify-between py-4 px-3">
+      <div className="space-y-0.5">
+        <div className="flex items-center justify-between px-2 pb-3">
+          <span className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
+            Navigation
           </span>
           {onCloseMobile && (
             <button
               onClick={onCloseMobile}
-              className="md:hidden p-1 rounded-lg text-slate-400 hover:text-slate-700"
+              className="md:hidden p-1 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100"
             >
               <X className="w-4 h-4" />
             </button>
           )}
         </div>
         {navigation.map((item) => {
-          // Precise active route detection:
-          // /dashboard -> exact match
-          // /applications -> exact match (prevent /applications/pipeline from highlighting /applications)
-          // /applications/pipeline -> exact match or startsWith /applications/pipeline
           const isActive =
             item.href === '/dashboard'
               ? pathname === '/dashboard'
@@ -66,46 +61,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen = false, onCloseM
               key={item.name}
               href={item.href}
               onClick={onCloseMobile}
-              className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`flex items-center gap-2.5 px-2.5 py-2 rounded-md text-[13px] font-medium transition-colors ${
                 isActive
-                  ? 'bg-sky-50 text-sky-700 border border-sky-200 font-semibold shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 border border-transparent'
+                  ? 'bg-gray-100 text-gray-900'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
-              <div className="flex items-center gap-3">
-                <Icon className={`w-4 h-4 ${isActive ? 'text-sky-600' : 'text-slate-400'}`} />
-                <span>{item.name}</span>
-              </div>
-              {item.badge && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
-                  {item.badge}
-                </span>
-              )}
+              <Icon className={`w-4 h-4 ${isActive ? 'text-gray-900' : 'text-gray-400'}`} />
+              <span>{item.name}</span>
             </Link>
           );
         })}
-      </div>
-
-      {/* API info box */}
-      <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs">
-        <div className="flex items-center justify-between text-slate-800 font-semibold">
-          <span>API Cloud Gateway</span>
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-        </div>
-        <p className="text-slate-500 text-[11px] leading-relaxed">
-          Spring Boot REST API with Gemini 1.5 & WSO2 API Platform Cloud.
-        </p>
-        <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] text-sky-600 font-medium">
-          <a
-            href="http://localhost:8085/swagger-ui.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:underline"
-          >
-            <FileCode className="w-3 h-3" />
-            Swagger Docs
-          </a>
-        </div>
       </div>
     </div>
   );
@@ -113,7 +79,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen = false, onCloseM
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="w-64 shrink-0 hidden md:flex flex-col border-r border-slate-200 bg-white min-h-[calc(100vh-4rem)] shadow-2xs">
+      <aside className="w-56 shrink-0 hidden md:flex flex-col border-r border-gray-200 bg-white min-h-[calc(100vh-3.5rem)]">
         {content}
       </aside>
 
@@ -121,10 +87,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen = false, onCloseM
       {isMobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
           <div
-            className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-gray-900/20 transition-opacity"
             onClick={onCloseMobile}
           />
-          <aside className="fixed inset-y-0 left-0 w-72 bg-white shadow-2xl border-r border-slate-200 z-50 animate-fade-in flex flex-col pt-2">
+          <aside className="fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 z-50 animate-fade-in flex flex-col pt-2">
             {content}
           </aside>
         </div>

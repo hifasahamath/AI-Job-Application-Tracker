@@ -26,10 +26,10 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-sky-600 border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm font-semibold text-slate-600">Loading Career AI...</span>
+          <div className="w-6 h-6 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm text-gray-500">Loading…</span>
         </div>
       </div>
     );
@@ -44,7 +44,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col antialiased">
+    <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col">
       <Navbar
         onNewApplication={() => setIsModalOpen(true)}
         onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
@@ -55,7 +55,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
           isMobileOpen={isMobileMenuOpen}
           onCloseMobile={() => setIsMobileMenuOpen(false)}
         />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto max-w-6xl mx-auto w-full">
           {children}
         </main>
       </div>

@@ -12,12 +12,8 @@ import { InterviewModal } from '../../../components/InterviewModal';
 import { NoteModal } from '../../../components/NoteModal';
 import { api } from '../../../lib/api';
 import { useToast } from '../../../context/ToastContext';
+import { JobApplication, ApplicationStatus } from '../../../types';
 import {
-  JobApplication,
-  ApplicationStatus
-} from '../../../types';
-import {
-  Briefcase,
   Building,
   Calendar,
   DollarSign,
@@ -37,7 +33,8 @@ import {
   Edit,
   ExternalLink,
   FileText,
-  Copy
+  Copy,
+  MapPin
 } from 'lucide-react';
 
 export default function ApplicationDetailPage() {
@@ -50,7 +47,6 @@ export default function ApplicationDetailPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'ai' | 'interviews' | 'notes'>('overview');
 
-  // Modals
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
@@ -87,7 +83,7 @@ export default function ApplicationDetailPage() {
   const handleRunAiAnalysis = async () => {
     if (!application) return;
     if (!application.jobDescription) {
-      error('Please edit the application to add a Job Description first.');
+      error('Add a job description first to run AI analysis.');
       return;
     }
 
@@ -102,23 +98,23 @@ export default function ApplicationDetailPage() {
       });
 
       setApplication((prev) => (prev ? { ...prev, latestAiAnalysis: result, latestMatchScore: result.matchScore } : null));
-      success('Gemini AI Analysis completed successfully!');
+      success('AI analysis completed');
       setActiveTab('ai');
     } catch (err: any) {
-      error(err.message || 'AI Analysis failed');
+      error(err.message || 'AI analysis failed');
     } finally {
       setAnalyzingAi(false);
     }
   };
 
   const handleDeleteApplication = async () => {
-    if (!confirm('Are you sure you want to delete this entire job application and all history?')) return;
+    if (!confirm('Delete this application and all its history?')) return;
     try {
       await api.deleteApplication(applicationId);
       success('Application deleted');
       router.push('/applications');
     } catch (err: any) {
-      error('Failed to delete application');
+      error('Failed to delete');
     }
   };
 
@@ -146,12 +142,14 @@ export default function ApplicationDetailPage() {
     }
   };
 
+  const inputClass = "bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-shadow";
+
   if (loading) {
     return (
       <AppShell>
-        <div className="py-24 text-center">
-          <div className="w-8 h-8 border-4 border-sky-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs text-slate-500 font-medium">Loading opportunity details...</p>
+        <div className="py-20 text-center">
+          <div className="w-6 h-6 border-2 border-gray-900 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-gray-500">Loading details…</p>
         </div>
       </AppShell>
     );
@@ -160,40 +158,46 @@ export default function ApplicationDetailPage() {
   if (!application) {
     return (
       <AppShell>
-        <div className="py-24 text-center">
-          <p className="text-sm font-bold text-slate-700">Application not found.</p>
-          <Link href="/applications" className="mt-3 inline-block text-xs text-sky-600 font-bold hover:underline">
-            ← Return to applications
+        <div className="py-20 text-center">
+          <p className="text-sm font-medium text-gray-700">Application not found.</p>
+          <Link href="/applications" className="mt-3 inline-block text-sm text-blue-600 hover:underline">
+            ← Back to applications
           </Link>
         </div>
       </AppShell>
     );
   }
 
+  const tabs = [
+    { key: 'overview' as const, label: 'Overview', count: null },
+    { key: 'ai' as const, label: 'AI Analysis', count: application.latestMatchScore !== undefined && application.latestMatchScore !== null ? `${application.latestMatchScore}%` : null },
+    { key: 'interviews' as const, label: 'Interviews', count: application.interviews?.length || 0 },
+    { key: 'notes' as const, label: 'Notes', count: application.notes?.length || 0 },
+  ];
+
   return (
     <AppShell>
-      <div className="space-y-6">
-        {/* Back Link & Quick Actions */}
+      <div className="space-y-5">
+        {/* Back & Actions */}
         <div className="flex items-center justify-between">
           <Link
             href="/applications"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Applications
+            Back
           </Link>
-
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsEditModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 transition-colors"
             >
               <Edit className="w-3.5 h-3.5" />
               Edit
             </button>
             <button
               onClick={handleDeleteApplication}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 shadow-2xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-red-600 hover:bg-red-50 border border-gray-200 transition-colors"
             >
               <Trash2 className="w-3.5 h-3.5" />
               Delete
@@ -201,46 +205,49 @@ export default function ApplicationDetailPage() {
           </div>
         </div>
 
-        {/* Hero Header Card */}
-        <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-2xs">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+        {/* Header Card */}
+        <div className="bg-white border border-gray-200 rounded-lg p-5 sm:p-6">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1 className="text-xl font-semibold text-gray-900">
                   {application.jobTitle}
                 </h1>
                 <PriorityBadge priority={application.priority} />
               </div>
 
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-600">
-                <span className="font-bold text-sm text-sky-700 flex items-center gap-1.5">
-                  <Building className="w-4 h-4 text-slate-400" />
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600">
+                <span className="font-medium text-gray-800 flex items-center gap-1.5">
+                  <Building className="w-4 h-4 text-gray-400" />
                   {application.company?.name}
                 </span>
-                <span>•</span>
-                <span>{application.workLocationType}</span>
-                {application.salaryMin || application.salaryMax ? (
+                <span className="text-gray-300">·</span>
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                  {application.workLocationType}
+                </span>
+                {(application.salaryMin || application.salaryMax) && (
                   <>
-                    <span>•</span>
-                    <span className="text-emerald-700 font-bold flex items-center gap-1">
+                    <span className="text-gray-300">·</span>
+                    <span className="text-emerald-600 font-medium flex items-center gap-0.5">
                       <DollarSign className="w-3.5 h-3.5" />
                       {application.salaryMin && application.salaryMax
-                        ? `${application.salaryCurrency} ${(application.salaryMin / 1000).toFixed(0)}k - ${(application.salaryMax / 1000).toFixed(0)}k`
-                        : `${application.salaryCurrency} ${(application.salaryMin || application.salaryMax! / 1000).toFixed(0)}k`}
+                        ? `${application.salaryCurrency} ${(application.salaryMin / 1000).toFixed(0)}k–${(application.salaryMax / 1000).toFixed(0)}k`
+                        : `${application.salaryCurrency} ${((application.salaryMin || application.salaryMax!) / 1000).toFixed(0)}k`}
                     </span>
                   </>
-                ) : null}
+                )}
                 {application.jobUrl && (
                   <>
-                    <span>•</span>
+                    <span className="text-gray-300">·</span>
                     <a
                       href={application.jobUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sky-600 hover:underline flex items-center gap-1 font-bold"
+                      className="text-blue-600 hover:underline flex items-center gap-1 font-medium"
                     >
                       <Globe className="w-3.5 h-3.5" />
-                      Job Posting Link
+                      Posting
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   </>
@@ -248,16 +255,15 @@ export default function ApplicationDetailPage() {
               </div>
             </div>
 
-            {/* Status Selector & AI Action */}
             <div className="flex flex-wrap items-center gap-3 self-start lg:self-center">
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">
-                  Pipeline Stage
+                <span className="text-[11px] font-medium text-gray-400 uppercase tracking-wide">
+                  Status
                 </span>
                 <select
                   value={application.status}
                   onChange={(e) => handleStatusChange(e.target.value as ApplicationStatus)}
-                  className="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 shadow-2xs"
+                  className={`${inputClass} text-xs`}
                 >
                   <option value="SAVED">Saved</option>
                   <option value="APPLIED">Applied</option>
@@ -272,334 +278,238 @@ export default function ApplicationDetailPage() {
               <button
                 onClick={handleRunAiAnalysis}
                 disabled={analyzingAi}
-                className="mt-4 sm:mt-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white shadow-sm shadow-sky-600/20 transition-all disabled:opacity-50 active:scale-95"
+                className="mt-4 sm:mt-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium bg-gray-900 hover:bg-gray-800 text-white transition-colors disabled:opacity-50"
               >
-                <Sparkles className={`w-4 h-4 text-sky-200 ${analyzingAi ? 'animate-spin' : ''}`} />
-                {analyzingAi ? 'Analyzing with Gemini...' : 'Analyze with AI'}
+                <Sparkles className={`w-4 h-4 ${analyzingAi ? 'animate-spin' : ''}`} />
+                {analyzingAi ? 'Analyzing…' : 'Analyze with AI'}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-slate-200 pb-1 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-              activeTab === 'overview'
-                ? 'bg-sky-50 text-sky-700 border border-sky-200 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            <Briefcase className="w-4 h-4" />
-            Overview & Description
-          </button>
-
-          <button
-            onClick={() => setActiveTab('ai')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-              activeTab === 'ai'
-                ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            <Sparkles className="w-4 h-4 text-indigo-600" />
-            Gemini AI Insights
-            {application.latestMatchScore !== undefined && application.latestMatchScore !== null && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold border border-emerald-200">
-                {application.latestMatchScore}%
-              </span>
-            )}
-          </button>
-
-          <button
-            onClick={() => setActiveTab('interviews')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-              activeTab === 'interviews'
-                ? 'bg-sky-50 text-sky-700 border border-sky-200 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            <Calendar className="w-4 h-4 text-sky-600" />
-            Interviews ({application.interviews?.length || 0})
-          </button>
-
-          <button
-            onClick={() => setActiveTab('notes')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
-              activeTab === 'notes'
-                ? 'bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            <MessageSquare className="w-4 h-4 text-amber-600" />
-            Notes & Prep ({application.notes?.length || 0})
-          </button>
+        {/* Tabs */}
+        <div className="flex items-center gap-0.5 border-b border-gray-200 overflow-x-auto">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`px-3.5 py-2.5 text-sm font-medium transition-colors border-b-2 shrink-0 ${
+                activeTab === tab.key
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              {tab.label}
+              {tab.count !== null && tab.count !== 0 && (
+                <span className="ml-1.5 text-xs text-gray-400 font-normal">
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
 
-        {/* Tab 1: Overview & Job Description */}
+        {/* Tab: Overview */}
         {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xs">
-              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Briefcase className="w-4 h-4 text-sky-600" />
-                Job Description
-              </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-5 space-y-4">
+              <h2 className="text-sm font-semibold text-gray-900">Job Description</h2>
               {application.jobDescription ? (
-                <div className="text-xs leading-relaxed text-slate-700 whitespace-pre-wrap bg-slate-50 p-4 rounded-2xl border border-slate-200/80 font-sans">
+                <div className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-md">
                   {application.jobDescription}
                 </div>
               ) : (
-                <div className="py-8 text-center bg-slate-50 rounded-2xl border border-slate-200">
-                  <p className="text-xs text-slate-500 font-medium">No job description provided yet.</p>
+                <div className="py-8 text-center bg-gray-50 rounded-md">
+                  <p className="text-sm text-gray-500">No job description provided.</p>
                   <button
                     onClick={() => setIsEditModalOpen(true)}
-                    className="mt-2 text-xs font-bold text-sky-600 hover:underline"
+                    className="mt-2 text-sm font-medium text-blue-600 hover:underline"
                   >
-                    + Add job description for Gemini AI analysis
+                    Add description
                   </button>
                 </div>
               )}
 
-              {/* Resume / CV Attached to this Application */}
-              <div className="pt-4 border-t border-slate-100 space-y-3">
+              {/* Resume */}
+              <div className="pt-4 border-t border-gray-100 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-sky-600" />
-                    Resume / CV Applied with
+                  <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
+                    <FileText className="w-4 h-4 text-gray-500" />
+                    Resume
                   </h3>
                   <div className="flex items-center gap-2">
-                    <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                        application.customResumeText
-                          ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                          : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                      }`}
-                    >
-                      {application.customResumeText ? 'Custom Tailored CV' : 'Master Profile CV'}
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-md ${
+                      application.customResumeText
+                        ? 'bg-indigo-50 text-indigo-700'
+                        : 'bg-emerald-50 text-emerald-700'
+                    }`}>
+                      {application.customResumeText ? 'Custom' : 'Master CV'}
                     </span>
                     <button
                       onClick={() => setIsEditModalOpen(true)}
-                      className="text-xs font-bold text-sky-600 hover:underline flex items-center gap-1"
+                      className="text-xs font-medium text-gray-500 hover:text-gray-700 flex items-center gap-1"
                     >
                       <Edit className="w-3 h-3" />
-                      Edit CV
+                      Edit
                     </button>
                   </div>
                 </div>
 
                 {application.customResumeText ? (
                   <div className="space-y-2">
-                    <div className="text-xs leading-relaxed text-slate-700 whitespace-pre-wrap bg-slate-50 p-4 rounded-2xl border border-slate-200/80 font-sans max-h-60 overflow-y-auto">
+                    <div className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-md max-h-60 overflow-y-auto">
                       {application.customResumeText}
                     </div>
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(application.customResumeText || '');
-                        success('Copied tailored resume to clipboard');
+                        success('Copied to clipboard');
                       }}
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-slate-900"
+                      className="text-xs font-medium text-gray-500 hover:text-gray-700 flex items-center gap-1"
                     >
                       <Copy className="w-3 h-3" />
-                      Copy CV text
+                      Copy text
                     </button>
                   </div>
                 ) : (
-                  <div className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200/60 text-xs text-emerald-900 flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      Using your default Master CV profile for matching and evaluations.
-                    </span>
-                    <Link
-                      href="/profile"
-                      className="text-xs font-bold text-emerald-700 hover:underline shrink-0"
-                    >
-                      View Master CV →
-                    </Link>
-                  </div>
+                  <p className="text-sm text-gray-500">Using Master CV from your profile.</p>
                 )}
               </div>
             </div>
 
-            <div className="space-y-6">
-              <div className="bg-white border border-slate-200/90 rounded-3xl p-6 space-y-4 shadow-2xs">
-                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  <Building className="w-4 h-4 text-slate-400" />
-                  Company Details
-                </h3>
-                <div className="space-y-2.5 text-xs text-slate-600">
-                  <div>
-                    <span className="text-slate-400 block text-[11px] font-medium">Company Name</span>
-                    <span className="font-bold text-slate-800">{application.company?.name}</span>
-                  </div>
-                  {application.company?.industry && (
-                    <div>
-                      <span className="text-slate-400 block text-[11px] font-medium">Industry</span>
-                      <span className="font-semibold text-slate-700">{application.company.industry}</span>
-                    </div>
-                  )}
-                  {application.company?.location && (
-                    <div>
-                      <span className="text-slate-400 block text-[11px] font-medium">Headquarters / Location</span>
-                      <span className="font-semibold text-slate-700">{application.company.location}</span>
-                    </div>
-                  )}
-                  {application.company?.website && (
-                    <div>
-                      <span className="text-slate-400 block text-[11px] font-medium">Website</span>
-                      <a
-                        href={application.company.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sky-600 hover:underline font-bold"
-                      >
-                        {application.company.website}
-                      </a>
-                    </div>
-                  )}
+            {/* Sidebar Details */}
+            <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-4 h-fit">
+              <h3 className="text-sm font-semibold text-gray-900">Details</h3>
+              <dl className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <dt className="text-gray-500">Status</dt>
+                  <dd><StatusBadge status={application.status} /></dd>
                 </div>
-              </div>
-
-              {/* Key Timeline Info */}
-              <div className="bg-white border border-slate-200/90 rounded-3xl p-6 space-y-3 shadow-2xs">
-                <h3 className="text-sm font-bold text-slate-900">Timeline & Deadlines</h3>
-                <div className="space-y-2 text-xs text-slate-600">
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400 font-medium">Date Applied:</span>
-                    <span className="font-bold text-slate-800">{application.appliedDate ? new Date(application.appliedDate).toLocaleDateString() : 'Not applied'}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400 font-medium">Application Deadline:</span>
-                    <span className={application.deadline ? 'text-amber-700 font-bold' : 'font-semibold text-slate-700'}>
-                      {application.deadline ? new Date(application.deadline).toLocaleDateString() : 'None specified'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400 font-medium">Created:</span>
-                    <span className="font-semibold text-slate-700">{new Date(application.createdAt).toLocaleDateString()}</span>
-                  </div>
+                <div className="flex justify-between">
+                  <dt className="text-gray-500">Priority</dt>
+                  <dd><PriorityBadge priority={application.priority} /></dd>
                 </div>
-              </div>
+                {application.appliedDate && (
+                  <div className="flex justify-between">
+                    <dt className="text-gray-500">Applied</dt>
+                    <dd className="text-gray-700 font-medium">{new Date(application.appliedDate).toLocaleDateString()}</dd>
+                  </div>
+                )}
+                {application.deadline && (
+                  <div className="flex justify-between">
+                    <dt className="text-gray-500">Deadline</dt>
+                    <dd className="text-amber-700 font-medium">{new Date(application.deadline).toLocaleDateString()}</dd>
+                  </div>
+                )}
+                {application.latestMatchScore !== undefined && application.latestMatchScore !== null && (
+                  <div className="flex justify-between items-center">
+                    <dt className="text-gray-500">AI Match</dt>
+                    <dd><ScoreGauge score={application.latestMatchScore} size="sm" showLabel={false} /></dd>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <dt className="text-gray-500">Interviews</dt>
+                  <dd className="text-gray-700 font-medium">{application.interviews?.length || 0}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-gray-500">Notes</dt>
+                  <dd className="text-gray-700 font-medium">{application.notes?.length || 0}</dd>
+                </div>
+                {application.createdAt && (
+                  <div className="flex justify-between">
+                    <dt className="text-gray-500">Created</dt>
+                    <dd className="text-gray-700">{new Date(application.createdAt).toLocaleDateString()}</dd>
+                  </div>
+                )}
+              </dl>
             </div>
           </div>
         )}
 
-        {/* Tab 2: Gemini AI Insights */}
+        {/* Tab: AI Analysis */}
         {activeTab === 'ai' && (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {!application.latestAiAnalysis ? (
-              <div className="bg-white border border-slate-200/90 rounded-3xl p-12 text-center max-w-xl mx-auto shadow-2xs">
-                <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mx-auto mb-4 text-indigo-600">
-                  <Sparkles className="w-7 h-7" />
-                </div>
-                <h2 className="text-lg font-bold text-slate-900">No AI Analysis Generated Yet</h2>
-                <p className="text-xs text-slate-500 mt-2 leading-relaxed font-medium">
-                  Run our Gemini-powered analysis engine on this job posting to generate an instant match score, skill matrix, custom preparation roadmap, and personalized interview questions.
+              <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
+                <Sparkles className="w-8 h-8 text-gray-300 mx-auto mb-3" />
+                <h2 className="text-base font-semibold text-gray-900">No AI analysis yet</h2>
+                <p className="text-sm text-gray-500 mt-1 max-w-md mx-auto">
+                  Click "Analyze with AI" to evaluate this job against your resume.
                 </p>
-                <button
-                  onClick={handleRunAiAnalysis}
-                  disabled={analyzingAi}
-                  className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white shadow-sm shadow-indigo-600/20 transition-all disabled:opacity-50 active:scale-95"
-                >
-                  <Sparkles className="w-4 h-4 text-sky-200" />
-                  {analyzingAi ? 'Running Gemini Analysis...' : 'Generate AI Analysis'}
-                </button>
               </div>
             ) : (
-              <div className="space-y-6">
-                {/* Score & Summary Banner */}
-                <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center gap-8 shadow-2xs">
-                  <div className="shrink-0 flex flex-col items-center">
+              <div className="space-y-4 animate-fade-in">
+                {/* Score & Summary */}
+                <div className="bg-white border border-gray-200 rounded-lg p-5 sm:p-6">
+                  <div className="flex flex-col sm:flex-row items-center gap-5 pb-5 border-b border-gray-100">
                     <ScoreGauge score={application.latestAiAnalysis.matchScore} size="lg" />
-                  </div>
-                  <div className="space-y-2 flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold uppercase tracking-wider text-sky-700 flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-sky-600" />
-                        Gemini Strategic Evaluation
+                    <div className="space-y-1 text-center sm:text-left flex-1">
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        {application.latestAiAnalysis.jobTitle || application.jobTitle}
+                      </h2>
+                      <span className="text-sm text-gray-600 block">
+                        {application.latestAiAnalysis.companyName || application.company?.name}
                       </span>
-                      <span className="text-[11px] text-slate-400 font-medium">
-                        Generated {new Date(application.latestAiAnalysis.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <h2 className="text-base font-bold text-slate-900">Candidate Alignment Summary</h2>
-                    <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                      {application.latestAiAnalysis.analysisSummary}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Skills Match Matrix */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Matching Skills */}
-                  <div className="bg-white border border-slate-200/90 rounded-3xl p-6 space-y-4 shadow-2xs">
-                    <h3 className="text-sm font-bold text-emerald-700 flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      Matching Core Competencies ({application.latestAiAnalysis.matchingSkills?.length || 0})
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {application.latestAiAnalysis.matchingSkills?.map((skill, idx) => (
-                        <span
-                          key={idx}
-                          className="px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200"
-                        >
-                          ✓ {skill}
-                        </span>
-                      ))}
+                      <p className="text-sm text-gray-600 leading-relaxed pt-1">
+                        {application.latestAiAnalysis.analysisSummary}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Missing / Expansion Skills */}
-                  <div className="bg-white border border-slate-200/90 rounded-3xl p-6 space-y-4 shadow-2xs">
-                    <h3 className="text-sm font-bold text-amber-700 flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 text-amber-600" />
-                      Identified Skill Gaps / Focus Areas ({application.latestAiAnalysis.missingSkills?.length || 0})
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {application.latestAiAnalysis.missingSkills?.map((skill, idx) => (
-                        <span
-                          key={idx}
-                          className="px-3 py-1 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200"
-                        >
-                          ⚠ {skill}
-                        </span>
-                      ))}
+                  {/* Skills Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+                    <div className="p-4 rounded-md bg-emerald-50 space-y-2">
+                      <h3 className="text-xs font-medium uppercase tracking-wide text-emerald-800 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        Matching Skills ({application.latestAiAnalysis.matchingSkills?.length || 0})
+                      </h3>
+                      <div className="flex flex-wrap gap-1.5">
+                        {application.latestAiAnalysis.matchingSkills?.map((s, i) => (
+                          <span key={i} className="px-2 py-0.5 rounded-md text-xs font-medium bg-white text-emerald-800">
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-md bg-amber-50 space-y-2">
+                      <h3 className="text-xs font-medium uppercase tracking-wide text-amber-800 flex items-center gap-1.5">
+                        <AlertCircle className="w-4 h-4 text-amber-600" />
+                        Missing Skills ({application.latestAiAnalysis.missingSkills?.length || 0})
+                      </h3>
+                      <div className="flex flex-wrap gap-1.5">
+                        {application.latestAiAnalysis.missingSkills?.map((s, i) => (
+                          <span key={i} className="px-2 py-0.5 rounded-md text-xs font-medium bg-white text-amber-800">
+                            {s}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Recommended Preparation Roadmap */}
+                {/* Preparation */}
                 {application.latestAiAnalysis.preparationAreas && application.latestAiAnalysis.preparationAreas.length > 0 && (
-                  <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xs">
-                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-sky-600" />
-                      Recommended Preparation Roadmap
+                  <div className="bg-white border border-gray-200 rounded-lg p-5 sm:p-6 space-y-3">
+                    <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
+                      <BookOpen className="w-4 h-4 text-gray-500" />
+                      Preparation Roadmap
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {application.latestAiAnalysis.preparationAreas.map((area, idx) => (
-                        <div
-                          key={idx}
-                          className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 flex flex-col justify-between"
-                        >
-                          <div className="space-y-1.5">
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs font-bold text-slate-900">{area.topic}</span>
-                              <span
-                                className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-                                  area.priority === 'HIGH'
-                                    ? 'bg-rose-50 text-rose-700 border-rose-200'
-                                    : 'bg-slate-100 text-slate-700 border-slate-200'
-                                }`}
-                              >
-                                {area.priority}
-                              </span>
-                            </div>
-                            <p className="text-xs text-slate-600 leading-relaxed font-normal">{area.actionableAdvice}</p>
+                        <div key={idx} className="p-3.5 rounded-md bg-gray-50 space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-900">{area.topic}</span>
+                            <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${
+                              area.priority === 'HIGH' ? 'bg-red-50 text-red-700' : 'bg-gray-100 text-gray-600'
+                            }`}>
+                              {area.priority}
+                            </span>
                           </div>
+                          <p className="text-xs text-gray-600 leading-relaxed">{area.actionableAdvice}</p>
                           {area.recommendedResources && area.recommendedResources.length > 0 && (
-                            <div className="pt-2 border-t border-slate-200 text-[11px] text-sky-600 font-medium">
-                              <span className="font-bold text-slate-500 block text-[10px]">Resources:</span>
-                              {area.recommendedResources.join(', ')}
+                            <div className="pt-1.5 border-t border-gray-200 text-xs text-gray-500">
+                              <span className="font-medium">Resources:</span> {area.recommendedResources.join(', ')}
                             </div>
                           )}
                         </div>
@@ -608,37 +518,28 @@ export default function ApplicationDetailPage() {
                   </div>
                 )}
 
-                {/* Predicted Interview Questions */}
+                {/* Interview Questions */}
                 {application.latestAiAnalysis.interviewQuestions && application.latestAiAnalysis.interviewQuestions.length > 0 && (
-                  <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xs">
-                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                      <HelpCircle className="w-4 h-4 text-indigo-600" />
-                      Personalized Interview Questions & Answer Guidance
+                  <div className="bg-white border border-gray-200 rounded-lg p-5 sm:p-6 space-y-3">
+                    <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
+                      <HelpCircle className="w-4 h-4 text-gray-500" />
+                      Interview Questions
                     </h3>
-                    <div className="space-y-4 mt-4">
+                    <div className="space-y-3">
                       {application.latestAiAnalysis.interviewQuestions.map((q, idx) => (
-                        <div
-                          key={idx}
-                          className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-                              {q.category} Round Question
-                            </span>
-                          </div>
-                          <p className="text-sm font-bold text-slate-900">{q.question}</p>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 text-xs">
-                            <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs">
-                              <span className="font-bold text-slate-700 block text-[11px] mb-1">
-                                Why Recruiter / Hiring Manager Asks This:
-                              </span>
-                              <p className="text-slate-600 leading-relaxed font-normal">{q.rationale}</p>
+                        <div key={idx} className="p-4 rounded-md bg-gray-50 space-y-2">
+                          <span className="inline-block text-[11px] font-medium px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700">
+                            {q.category}
+                          </span>
+                          <p className="text-sm font-medium text-gray-900">{q.question}</p>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
+                            <div className="p-3 rounded-md bg-white border border-gray-200">
+                              <span className="font-medium text-gray-700 block mb-1">Why they ask:</span>
+                              <p className="text-gray-600 leading-relaxed">{q.rationale}</p>
                             </div>
-                            <div className="p-3.5 rounded-xl bg-sky-50/70 border border-sky-200 shadow-2xs">
-                              <span className="font-bold text-sky-800 block text-[11px] mb-1">
-                                Suggested Answer Framework:
-                              </span>
-                              <p className="text-sky-900 leading-relaxed font-normal">{q.suggestedAnswerTip}</p>
+                            <div className="p-3 rounded-md bg-blue-50 border border-blue-100">
+                              <span className="font-medium text-blue-800 block mb-1">Key points:</span>
+                              <p className="text-blue-900 leading-relaxed">{q.suggestedAnswerTip}</p>
                             </div>
                           </div>
                         </div>
@@ -651,182 +552,147 @@ export default function ApplicationDetailPage() {
           </div>
         )}
 
-        {/* Tab 3: Interviews */}
+        {/* Tab: Interviews */}
         {activeTab === 'interviews' && (
-          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xs">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div>
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-sky-600" />
-                  Scheduled Interview Rounds
-                </h2>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Track upcoming technical coding, system design, or cultural rounds.
-                </p>
-              </div>
+          <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-gray-900">
+                Interview Rounds ({application.interviews?.length || 0})
+              </h2>
               <button
                 onClick={() => setIsInterviewModalOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-600/20 transition-all active:scale-95"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-gray-900 hover:bg-gray-800 text-white transition-colors"
               >
-                <Plus className="w-4 h-4" />
-                Schedule Round
+                <Plus className="w-3.5 h-3.5" />
+                Schedule
               </button>
             </div>
 
-            <div className="space-y-4">
-              {!application.interviews || application.interviews.length === 0 ? (
-                <div className="py-12 text-center">
-                  <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                  <p className="text-sm font-bold text-slate-700">No interview rounds scheduled yet.</p>
-                  <button
-                    onClick={() => setIsInterviewModalOpen(true)}
-                    className="mt-3 text-xs font-bold text-indigo-600 hover:underline"
-                  >
-                    + Schedule your first round
-                  </button>
-                </div>
-              ) : (
-                application.interviews.map((inv) => (
-                  <div
-                    key={inv.id}
-                    className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs"
-                  >
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2.5">
-                        <span className="font-bold text-sm text-slate-900">
-                          Round {inv.roundNumber}: {inv.roundType}
-                        </span>
-                        <span
-                          className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${
-                            inv.status === 'SCHEDULED'
-                              ? 'bg-sky-50 text-sky-700 border-sky-200'
-                              : inv.status === 'COMPLETED'
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : 'bg-rose-50 text-rose-700 border-rose-200'
-                          }`}
-                        >
-                          {inv.status}
-                        </span>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-                        <span className="flex items-center gap-1 text-indigo-600 font-bold">
-                          <Clock className="w-3.5 h-3.5 text-indigo-500" />
-                          {new Date(inv.scheduledAt).toLocaleString(undefined, {
-                            dateStyle: 'medium',
-                            timeStyle: 'short',
-                          })}{' '}
-                          ({inv.durationMinutes} mins)
-                        </span>
-
-                        {inv.interviewerNames && (
-                          <span className="flex items-center gap-1 text-slate-700 font-medium">
-                            <UserCheck className="w-3.5 h-3.5 text-slate-400" />
-                            {inv.interviewerNames}
-                          </span>
-                        )}
-                      </div>
-
-                      {inv.notes && (
-                        <p className="text-xs text-slate-600 mt-2 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
-                          {inv.notes}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2 self-end sm:self-center">
-                      {inv.meetingLink && (
-                        <a
-                          href={inv.meetingLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-2xs transition-colors"
-                        >
-                          <Video className="w-3.5 h-3.5" />
-                          Join Meeting
-                        </a>
-                      )}
-                      <button
-                        onClick={() => handleDeleteInterview(inv.id)}
-                        className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                        title="Delete Interview"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Tab 4: Notes & Preparation */}
-        {activeTab === 'notes' && (
-          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xs">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div>
-                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-amber-600" />
-                  Application Notes & Follow-ups
-                </h2>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Record recruiter conversations, technical prep notes, and offer negotiation terms.
-                </p>
+            {!application.interviews || application.interviews.length === 0 ? (
+              <div className="py-10 text-center">
+                <Calendar className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                <p className="text-sm text-gray-600 font-medium">No interviews scheduled</p>
+                <p className="text-xs text-gray-400 mt-0.5">Click "Schedule" to add your first round.</p>
               </div>
-              <button
-                onClick={() => setIsNoteModalOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-sm shadow-sky-600/20 transition-all active:scale-95"
-              >
-                <Plus className="w-4 h-4" />
-                Add Note
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {!application.notes || application.notes.length === 0 ? (
-                <div className="py-12 text-center">
-                  <MessageSquare className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                  <p className="text-sm font-bold text-slate-700">No notes recorded yet.</p>
-                  <button
-                    onClick={() => setIsNoteModalOpen(true)}
-                    className="mt-3 text-xs font-bold text-sky-600 hover:underline"
-                  >
-                    + Add first note
-                  </button>
-                </div>
-              ) : (
-                application.notes.map((note) => (
-                  <div
-                    key={note.id}
-                    className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 flex flex-col sm:flex-row sm:items-start justify-between gap-4 shadow-2xs"
-                  >
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        {note.title && <span className="font-bold text-sm text-slate-900">{note.title}</span>}
-                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-200/80 text-slate-700 border border-slate-300">
-                          {note.category}
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">{note.content}</p>
-                      {note.createdAt && (
-                        <span className="text-[10px] text-slate-400 block pt-1 font-medium">
-                          {new Date(note.createdAt).toLocaleString()}
+            ) : (
+              application.interviews.map((inv) => (
+                <div
+                  key={inv.id}
+                  className="p-4 rounded-md bg-gray-50 flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                >
+                  <div className="space-y-1.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-medium text-gray-900">
+                        Round {inv.roundNumber}: {inv.roundType}
+                      </span>
+                      <span className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${
+                        inv.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700' :
+                        inv.status === 'CANCELLED' ? 'bg-red-50 text-red-700' :
+                        'bg-indigo-50 text-indigo-700'
+                      }`}>
+                        {inv.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {new Date(inv.scheduledAt).toLocaleString(undefined, {
+                          weekday: 'short', month: 'short', day: 'numeric',
+                          hour: '2-digit', minute: '2-digit',
+                        })} ({inv.durationMinutes} min)
+                      </span>
+                      {inv.interviewerNames && (
+                        <span className="flex items-center gap-1 text-gray-600">
+                          <UserCheck className="w-3 h-3 text-gray-400" />
+                          {inv.interviewerNames}
                         </span>
                       )}
                     </div>
+                    {inv.notes && (
+                      <p className="text-xs text-gray-600 bg-white p-2.5 rounded-md border border-gray-200 leading-relaxed">
+                        {inv.notes}
+                      </p>
+                    )}
+                  </div>
 
+                  <div className="flex items-center gap-2 self-end lg:self-center shrink-0">
+                    {inv.meetingLink && (
+                      <a
+                        href={inv.meetingLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-gray-900 hover:bg-gray-800 text-white transition-colors"
+                      >
+                        <Video className="w-3.5 h-3.5" />
+                        Join
+                      </a>
+                    )}
                     <button
-                      onClick={() => handleDeleteNote(note.id)}
-                      className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors self-end sm:self-start"
-                      title="Delete Note"
+                      onClick={() => handleDeleteInterview(inv.id)}
+                      className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                      title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-                ))
-              )}
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* Tab: Notes */}
+        {activeTab === 'notes' && (
+          <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-gray-900">
+                Notes ({application.notes?.length || 0})
+              </h2>
+              <button
+                onClick={() => setIsNoteModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-gray-900 hover:bg-gray-800 text-white transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add Note
+              </button>
             </div>
+
+            {!application.notes || application.notes.length === 0 ? (
+              <div className="py-10 text-center">
+                <MessageSquare className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                <p className="text-sm text-gray-600 font-medium">No notes yet</p>
+                <p className="text-xs text-gray-400 mt-0.5">Add notes to track recruiter feedback or prep topics.</p>
+              </div>
+            ) : (
+              application.notes.map((note) => (
+                <div
+                  key={note.id}
+                  className="p-4 rounded-md bg-gray-50 space-y-1.5 flex flex-col sm:flex-row sm:items-start justify-between gap-3"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      {note.title && <span className="font-medium text-sm text-gray-900">{note.title}</span>}
+                      <span className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-gray-200 text-gray-700">
+                        {note.category}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{note.content}</p>
+                    {note.createdAt && (
+                      <span className="text-xs text-gray-400 block pt-0.5">
+                        {new Date(note.createdAt).toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => handleDeleteNote(note.id)}
+                    className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors self-end sm:self-start"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>
