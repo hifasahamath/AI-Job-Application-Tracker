@@ -5,18 +5,17 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { Sparkles, ArrowRight, Lock, Mail, ShieldCheck, Zap, Eye, EyeOff } from 'lucide-react';
+import { Sparkles, ArrowRight, Lock, Mail, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, loginDemo } = useAuth();
+  const { login } = useAuth();
   const { success, error } = useToast();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [demoLoading, setDemoLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,19 +33,6 @@ export default function LoginPage() {
       error(err.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleDemoLogin = async () => {
-    setDemoLoading(true);
-    try {
-      await loginDemo();
-      success('Logged in with Demo Candidate account!');
-      router.push('/dashboard');
-    } catch (err: any) {
-      error(err.message || 'Demo login failed');
-    } finally {
-      setDemoLoading(false);
     }
   };
 
@@ -72,22 +58,6 @@ export default function LoginPage() {
 
         {/* Login card */}
         <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/50">
-          {/* Quick Demo button */}
-          <div className="mb-6 p-3 rounded-2xl bg-gradient-to-r from-sky-50 to-indigo-50 border border-sky-200/70 flex items-center justify-between shadow-2xs">
-            <div className="flex items-center gap-2 text-xs text-sky-800 font-semibold">
-              <Zap className="w-4 h-4 text-sky-600 shrink-0" />
-              <span>Interview Demo Mode</span>
-            </div>
-            <button
-              type="button"
-              onClick={handleDemoLogin}
-              disabled={demoLoading || loading}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white transition-all shadow-sm disabled:opacity-50 active:scale-95"
-            >
-              {demoLoading ? 'Launching...' : '1-Click Demo'}
-            </button>
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">
@@ -135,7 +105,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading || demoLoading}
+              disabled={loading}
               className="w-full mt-2 inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-semibold bg-sky-600 hover:bg-sky-700 text-white shadow-md shadow-sky-600/20 transition-all disabled:opacity-50 active:scale-95"
             >
               {loading ? (
