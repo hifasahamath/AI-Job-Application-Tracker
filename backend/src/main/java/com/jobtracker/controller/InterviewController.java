@@ -28,6 +28,14 @@ public class InterviewController {
         this.interviewService = interviewService;
     }
 
+    @GetMapping
+    @Operation(summary = "Get all interviews", description = "Retrieves all scheduled future interviews across all user applications")
+    public ResponseEntity<ApiResponse<List<InterviewResponse>>> getAllInterviews(
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        List<InterviewResponse> interviews = interviewService.getUpcomingInterviews(currentUser.getId());
+        return ResponseEntity.ok(ApiResponse.success(interviews));
+    }
+
     @GetMapping("/upcoming")
     @Operation(summary = "Get upcoming interviews", description = "Retrieves all scheduled future interviews across all user applications")
     public ResponseEntity<ApiResponse<List<InterviewResponse>>> getUpcomingInterviews(

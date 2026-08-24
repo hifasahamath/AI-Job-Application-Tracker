@@ -16,6 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -62,7 +66,30 @@ public class JobApplicationService {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        return applicationRepository.findWithFilters(userId, status, priority, companyId, search, pageable)
+        Specification<JobApplication> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("user").get("id"), userId));
+
+            if (status != null) {
+                predicates.add(cb.equal(root.get("status"), status));
+            }
+            if (priority != null) {
+                predicates.add(cb.equal(root.get("priority"), priority));
+            }
+            if (companyId != null) {
+                predicates.add(cb.equal(root.get("company").get("id"), companyId));
+            }
+            if (StringUtils.hasText(search)) {
+                String searchPattern = "%" + search.trim().toLowerCase() + "%";
+                Predicate jobTitleMatch = cb.like(cb.lower(root.get("jobTitle")), searchPattern);
+                Predicate companyNameMatch = cb.like(cb.lower(root.get("company").get("name")), searchPattern);
+                predicates.add(cb.or(jobTitleMatch, companyNameMatch));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return applicationRepository.findAll(spec, pageable)
                 .map(this::mapToSummaryResponse);
     }
 
