@@ -10,6 +10,7 @@ import com.jobtracker.security.JwtAuthenticationEntryPoint;
 import com.jobtracker.security.JwtAuthenticationFilter;
 import com.jobtracker.security.JwtTokenProvider;
 import com.jobtracker.service.AuthService;
+import com.jobtracker.service.ResumeParserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,9 @@ class AuthControllerTest {
 
     @MockBean
     private AuthService authService;
+
+    @MockBean
+    private ResumeParserService resumeParserService;
 
     @MockBean
     private JwtTokenProvider jwtTokenProvider;

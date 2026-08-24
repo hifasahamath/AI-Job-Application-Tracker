@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { AppShell } from '../../components/AppShell';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { api } from '../../lib/api';
 import Link from 'next/link';
 import {
   User,
@@ -33,6 +34,8 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
 
+  const [extracting, setExtracting] = useState(false);
+
   useEffect(() => {
     if (user) {
       setFullName(user.fullName || '');
@@ -42,45 +45,39 @@ export default function ProfilePage() {
     }
   }, [user]);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setFileName(file.name);
+    setExtracting(true);
 
-    // Read text from file
-    if (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const text = event.target?.result as string;
-        if (text) {
-          setResumeText(text);
-          success(`Imported text from ${file.name}`);
-        }
-      };
-      reader.readAsText(file);
-    } else {
-      // For PDF, DOCX or other text-readable formats, attempt text extraction via FileReader
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const buffer = event.target?.result as ArrayBuffer;
-        const decoder = new TextDecoder('utf-8', { fatal: false });
-        const rawText = decoder.decode(buffer);
-        // Clean non-printable characters for display
-        const cleaned = rawText
-          .replace(/[^\x20-\x7E\t\n\r]/g, ' ')
-          .replace(/ {2,}/g, ' ')
-          .trim();
-
-        if (cleaned.length > 50) {
-          setResumeText(cleaned);
-          success(`Extracted text from ${file.name}`);
+    try {
+      if (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const text = event.target?.result as string;
+          if (text) {
+            setResumeText(text);
+            success(`Imported text from ${file.name}`);
+          }
+          setExtracting(false);
+        };
+        reader.readAsText(file);
+      } else {
+        // Use backend PDF / DOCX parser with Apache PDFBox
+        const extracted = await api.extractResumeText(file);
+        if (extracted && extracted.trim()) {
+          setResumeText(extracted.trim());
+          success(`Extracted formatted text from ${file.name}`);
         } else {
-          // Fallback guidance
-          error(`Could not automatically extract plain text from ${file.name}. Please copy and paste your resume text below.`);
+          error('No readable text found in the document.');
         }
-      };
-      reader.readAsArrayBuffer(file);
+        setExtracting(false);
+      }
+    } catch (err: any) {
+      error(err.message || `Failed to extract text from ${file.name}. You can paste resume text directly.`);
+      setExtracting(false);
     }
   };
 
@@ -246,11 +243,12 @@ export default function ProfilePage() {
               </div>
 
               <label className="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-sky-700 hover:bg-sky-100/50 border border-sky-300 shadow-2xs transition-all active:scale-95 shrink-0">
-                <Upload className="w-3.5 h-3.5" />
-                Browse File
+                <Upload className={`w-3.5 h-3.5 ${extracting ? 'animate-bounce' : ''}`} />
+                {extracting ? 'Extracting Text...' : 'Browse File'}
                 <input
                   type="file"
                   accept=".txt,.pdf,.docx,.doc,.md"
+                  disabled={extracting}
                   onChange={handleFileUpload}
                   className="hidden"
                 />

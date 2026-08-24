@@ -4,13 +4,16 @@ import com.jobtracker.dto.ApiResponse;
 import com.jobtracker.dto.auth.*;
 import com.jobtracker.security.UserPrincipal;
 import com.jobtracker.service.AuthService;
+import com.jobtracker.service.ResumeParserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -18,9 +21,11 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final ResumeParserService resumeParserService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, ResumeParserService resumeParserService) {
         this.authService = authService;
+        this.resumeParserService = resumeParserService;
     }
 
     @PostMapping("/register")
@@ -46,11 +51,19 @@ public class AuthController {
     }
 
     @PutMapping("/profile")
-    @Operation(summary = "Update user profile", description = "Updates target role and skills summary")
+    @Operation(summary = "Update user profile", description = "Updates target role, skills summary, and master resume")
     public ResponseEntity<ApiResponse<UserProfileResponse>> updateProfile(
             @AuthenticationPrincipal UserPrincipal currentUser,
             @Valid @RequestBody UpdateProfileRequest request) {
         UserProfileResponse updated = authService.updateProfile(currentUser.getId(), request);
         return ResponseEntity.ok(ApiResponse.success("Profile updated successfully", updated));
+    }
+
+    @PostMapping(value = "/extract-resume", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Extract text from CV/Resume file", description = "Extracts clean readable plain text from uploaded PDF, DOCX, or TXT documents")
+    public ResponseEntity<ApiResponse<String>> extractResumeText(
+            @RequestParam("file") MultipartFile file) {
+        String extractedText = resumeParserService.extractText(file);
+        return ResponseEntity.ok(ApiResponse.success("Text extracted successfully", extractedText));
     }
 }

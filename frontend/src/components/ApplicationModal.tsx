@@ -17,7 +17,8 @@ import {
   Eye,
   EyeOff,
   Copy,
-  CheckCircle2
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 
 interface ApplicationModalProps {
@@ -97,35 +98,38 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
     }
   }, [applicationToEdit, isOpen]);
 
-  const handleCustomFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [extractingCustom, setExtractingCustom] = useState(false);
+
+  const handleCustomFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const text = ev.target?.result as string;
-        if (text) {
-          setCustomResumeText(text);
-          success(`Loaded tailored resume from ${file.name}`);
-        }
-      };
-      reader.readAsText(file);
-    } else {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const buffer = ev.target?.result as ArrayBuffer;
-        const decoder = new TextDecoder('utf-8', { fatal: false });
-        const rawText = decoder.decode(buffer);
-        const cleaned = rawText.replace(/[^\x20-\x7E\t\n\r]/g, ' ').replace(/ {2,}/g, ' ').trim();
-        if (cleaned.length > 50) {
-          setCustomResumeText(cleaned);
+    setExtractingCustom(true);
+    try {
+      if (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const text = ev.target?.result as string;
+          if (text) {
+            setCustomResumeText(text);
+            success(`Loaded tailored resume from ${file.name}`);
+          }
+          setExtractingCustom(false);
+        };
+        reader.readAsText(file);
+      } else {
+        const extracted = await api.extractResumeText(file);
+        if (extracted && extracted.trim()) {
+          setCustomResumeText(extracted.trim());
           success(`Extracted text from ${file.name}`);
         } else {
-          error(`Could not extract plain text from ${file.name}. Please paste text manually.`);
+          error('No readable text found in document.');
         }
-      };
-      reader.readAsArrayBuffer(file);
+        setExtractingCustom(false);
+      }
+    } catch (err: any) {
+      error(err.message || `Failed to extract text from ${file.name}. You can paste resume text directly.`);
+      setExtractingCustom(false);
     }
   };
 
@@ -427,9 +431,19 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
                 </div>
 
                 {showMasterPreview && (
-                  <pre className="p-3 rounded-lg bg-slate-50 text-[11px] text-slate-700 whitespace-pre-wrap font-sans max-h-36 overflow-y-auto border border-slate-200">
-                    {user?.resumeText || user?.skillsSummary || 'No Master CV text set in Profile. Visit "Profile & Master CV" to add one.'}
-                  </pre>
+                  user?.resumeText && user.resumeText.trim() ? (
+                    <pre className="p-3.5 rounded-xl bg-slate-50 text-[11px] text-slate-800 whitespace-pre-wrap font-sans max-h-48 overflow-y-auto border border-slate-200 leading-relaxed">
+                      {user.resumeText}
+                    </pre>
+                  ) : (
+                    <div className="p-3 bg-amber-50 rounded-xl border border-amber-200/80 text-amber-900 text-[11px] flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold block">No Master CV saved yet in your Profile.</span>
+                        <span className="text-amber-800">Visit <strong>Profile & Master CV</strong> in the sidebar to upload or paste your complete resume text.</span>
+                      </div>
+                    </div>
+                  )
                 )}
               </div>
             ) : (
@@ -451,11 +465,12 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
                       </button>
                     )}
                     <label className="cursor-pointer inline-flex items-center gap-1 text-indigo-600 font-bold hover:underline">
-                      <Upload className="w-3 h-3" />
-                      Upload File
+                      <Upload className={`w-3 h-3 ${extractingCustom ? 'animate-bounce' : ''}`} />
+                      {extractingCustom ? 'Extracting...' : 'Upload File'}
                       <input
                         type="file"
                         accept=".txt,.pdf,.docx,.doc,.md"
+                        disabled={extractingCustom}
                         onChange={handleCustomFileUpload}
                         className="hidden"
                       />

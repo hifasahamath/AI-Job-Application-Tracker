@@ -73,6 +73,17 @@ export const api = {
     return res.data.data;
   },
 
+  extractResumeText: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await client.post<ApiResponse<string>>('/api/v1/auth/extract-resume', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data.data;
+  },
+
   // Dashboard
   getDashboardMetrics: async () => {
     const res = await client.get<ApiResponse<DashboardMetrics>>('/api/v1/dashboard/metrics');
