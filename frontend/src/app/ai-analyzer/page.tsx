@@ -50,6 +50,14 @@ Requirements:
     fetchHistory();
   }, []);
 
+  useEffect(() => {
+    if (user?.resumeText) {
+      setResumeText(user.resumeText);
+    } else if (user?.skillsSummary) {
+      setResumeText(user.skillsSummary);
+    }
+  }, [user]);
+
   const fetchHistory = async () => {
     setLoadingHistory(true);
     try {

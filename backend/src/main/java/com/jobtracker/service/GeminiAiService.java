@@ -77,12 +77,25 @@ public class GeminiAiService {
                     .orElse(null);
         }
 
-        // Determine effective resume text / candidate skills
-        String candidateSkills = StringUtils.hasText(request.getResumeText())
-                ? request.getResumeText()
-                : (StringUtils.hasText(request.getSkillsSummary())
-                    ? request.getSkillsSummary()
-                    : (StringUtils.hasText(user.getSkillsSummary()) ? user.getSkillsSummary() : "Software engineering background"));
+        // Determine effective resume text / candidate skills:
+        // 1. Explicit request resumeText
+        // 2. Application customResumeText (if analyzing an application)
+        // 3. User master resumeText
+        // 4. Request skillsSummary or User skillsSummary
+        String candidateSkills;
+        if (StringUtils.hasText(request.getResumeText())) {
+            candidateSkills = request.getResumeText();
+        } else if (application != null && StringUtils.hasText(application.getCustomResumeText())) {
+            candidateSkills = application.getCustomResumeText();
+        } else if (StringUtils.hasText(user.getResumeText())) {
+            candidateSkills = user.getResumeText();
+        } else if (StringUtils.hasText(request.getSkillsSummary())) {
+            candidateSkills = request.getSkillsSummary();
+        } else if (StringUtils.hasText(user.getSkillsSummary())) {
+            candidateSkills = user.getSkillsSummary();
+        } else {
+            candidateSkills = "Software engineering background";
+        }
 
         String jobTitle = StringUtils.hasText(request.getJobTitle())
                 ? request.getJobTitle()

@@ -35,7 +35,9 @@ import {
   HelpCircle,
   Trash2,
   Edit,
-  ExternalLink
+  ExternalLink,
+  FileText,
+  Copy
 } from 'lucide-react';
 
 export default function ApplicationDetailPage() {
@@ -96,6 +98,7 @@ export default function ApplicationDetailPage() {
         jobTitle: application.jobTitle,
         companyName: application.company?.name,
         jobDescription: application.jobDescription,
+        resumeText: application.customResumeText || undefined,
       });
 
       setApplication((prev) => (prev ? { ...prev, latestAiAnalysis: result, latestMatchScore: result.matchScore } : null));
@@ -357,6 +360,65 @@ export default function ApplicationDetailPage() {
                   </button>
                 </div>
               )}
+
+              {/* Resume / CV Attached to this Application */}
+              <div className="pt-4 border-t border-slate-100 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-sky-600" />
+                    Resume / CV Applied with
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                        application.customResumeText
+                          ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      }`}
+                    >
+                      {application.customResumeText ? 'Custom Tailored CV' : 'Master Profile CV'}
+                    </span>
+                    <button
+                      onClick={() => setIsEditModalOpen(true)}
+                      className="text-xs font-bold text-sky-600 hover:underline flex items-center gap-1"
+                    >
+                      <Edit className="w-3 h-3" />
+                      Edit CV
+                    </button>
+                  </div>
+                </div>
+
+                {application.customResumeText ? (
+                  <div className="space-y-2">
+                    <div className="text-xs leading-relaxed text-slate-700 whitespace-pre-wrap bg-slate-50 p-4 rounded-2xl border border-slate-200/80 font-sans max-h-60 overflow-y-auto">
+                      {application.customResumeText}
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(application.customResumeText || '');
+                        success('Copied tailored resume to clipboard');
+                      }}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-slate-900"
+                    >
+                      <Copy className="w-3 h-3" />
+                      Copy CV text
+                    </button>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200/60 text-xs text-emerald-900 flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      Using your default Master CV profile for matching and evaluations.
+                    </span>
+                    <Link
+                      href="/profile"
+                      className="text-xs font-bold text-emerald-700 hover:underline shrink-0"
+                    >
+                      View Master CV →
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="space-y-6">

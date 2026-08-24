@@ -9,6 +9,7 @@ import {
   Table,
   Sparkles,
   Calendar,
+  FileText,
   FileCode,
   X
 } from 'lucide-react';
@@ -27,6 +28,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen = false, onCloseM
     { name: 'Applications Table', href: '/applications', icon: Table },
     { name: 'AI Analyzer Studio', href: '/ai-analyzer', icon: Sparkles, badge: 'Gemini' },
     { name: 'Interview Schedules', href: '/interviews', icon: Calendar },
+    { name: 'Profile & Master CV', href: '/profile', icon: FileText },
   ];
 
   const content = (

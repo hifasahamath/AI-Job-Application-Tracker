@@ -31,6 +31,9 @@ public class JobApplication {
     @Column(name = "job_description", columnDefinition = "TEXT")
     private String jobDescription;
 
+    @Column(name = "custom_resume_text", columnDefinition = "TEXT")
+    private String customResumeText;
+
     @Column(name = "job_url", length = 1000)
     private String jobUrl;
 
@@ -140,6 +143,14 @@ public class JobApplication {
 
     public void setJobDescription(String jobDescription) {
         this.jobDescription = jobDescription;
+    }
+
+    public String getCustomResumeText() {
+        return customResumeText;
+    }
+
+    public void setCustomResumeText(String customResumeText) {
+        this.customResumeText = customResumeText;
     }
 
     public String getJobUrl() {

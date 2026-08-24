@@ -68,7 +68,7 @@ export const api = {
     return res.data.data;
   },
 
-  updateProfile: async (data: { fullName: string; targetRole?: string; skillsSummary?: string }) => {
+  updateProfile: async (data: { fullName: string; targetRole?: string; skillsSummary?: string; resumeText?: string }) => {
     const res = await client.put<ApiResponse<User>>('/api/v1/auth/profile', data);
     return res.data.data;
   },

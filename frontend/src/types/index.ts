@@ -32,6 +32,7 @@ export interface User {
   fullName: string;
   targetRole?: string;
   skillsSummary?: string;
+  resumeText?: string;
   createdAt?: string;
 }
 
@@ -117,6 +118,7 @@ export interface JobApplication {
   company: Company;
   jobTitle: string;
   jobDescription?: string;
+  customResumeText?: string;
   jobUrl?: string;
   status: ApplicationStatus;
   salaryMin?: number;

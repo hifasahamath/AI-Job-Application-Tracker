@@ -109,6 +109,7 @@ public class JobApplicationService {
         application.setCompany(company);
         application.setJobTitle(request.getJobTitle().trim());
         application.setJobDescription(request.getJobDescription());
+        application.setCustomResumeText(request.getCustomResumeText());
         application.setJobUrl(request.getJobUrl());
         application.setStatus(request.getStatus() != null ? request.getStatus() : ApplicationStatus.SAVED);
         application.setSalaryMin(request.getSalaryMin());
@@ -139,6 +140,7 @@ public class JobApplicationService {
 
         application.setJobTitle(request.getJobTitle().trim());
         application.setJobDescription(request.getJobDescription());
+        application.setCustomResumeText(request.getCustomResumeText());
         application.setJobUrl(request.getJobUrl());
         if (request.getStatus() != null) {
             application.setStatus(request.getStatus());
@@ -187,6 +189,7 @@ public class JobApplicationService {
         response.setCompany(companyService.mapToResponse(app.getCompany()));
         response.setJobTitle(app.getJobTitle());
         response.setJobDescription(app.getJobDescription());
+        response.setCustomResumeText(app.getCustomResumeText());
         response.setJobUrl(app.getJobUrl());
         response.setStatus(app.getStatus());
         response.setSalaryMin(app.getSalaryMin());

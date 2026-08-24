@@ -21,6 +21,7 @@ public class JobApplicationResponse {
     private CompanyResponse company;
     private String jobTitle;
     private String jobDescription;
+    private String customResumeText;
     private String jobUrl;
     private ApplicationStatus status;
     private BigDecimal salaryMin;
@@ -80,6 +81,14 @@ public class JobApplicationResponse {
 
     public void setJobDescription(String jobDescription) {
         this.jobDescription = jobDescription;
+    }
+
+    public String getCustomResumeText() {
+        return customResumeText;
+    }
+
+    public void setCustomResumeText(String customResumeText) {
+        this.customResumeText = customResumeText;
     }
 
     public String getJobUrl() {

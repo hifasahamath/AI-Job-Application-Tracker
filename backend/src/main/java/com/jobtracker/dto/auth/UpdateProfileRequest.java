@@ -9,6 +9,7 @@ public class UpdateProfileRequest {
 
     private String targetRole;
     private String skillsSummary;
+    private String resumeText;
 
     public UpdateProfileRequest() {
     }
@@ -17,6 +18,13 @@ public class UpdateProfileRequest {
         this.fullName = fullName;
         this.targetRole = targetRole;
         this.skillsSummary = skillsSummary;
+    }
+
+    public UpdateProfileRequest(String fullName, String targetRole, String skillsSummary, String resumeText) {
+        this.fullName = fullName;
+        this.targetRole = targetRole;
+        this.skillsSummary = skillsSummary;
+        this.resumeText = resumeText;
     }
 
     public String getFullName() {
@@ -41,5 +49,13 @@ public class UpdateProfileRequest {
 
     public void setSkillsSummary(String skillsSummary) {
         this.skillsSummary = skillsSummary;
+    }
+
+    public String getResumeText() {
+        return resumeText;
+    }
+
+    public void setResumeText(String resumeText) {
+        this.resumeText = resumeText;
     }
 }

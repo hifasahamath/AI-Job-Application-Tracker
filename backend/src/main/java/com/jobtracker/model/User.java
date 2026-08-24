@@ -28,6 +28,9 @@ public class User {
     @Column(name = "skills_summary", columnDefinition = "TEXT")
     private String skillsSummary;
 
+    @Column(name = "resume_text", columnDefinition = "TEXT")
+    private String resumeText;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -44,6 +47,16 @@ public class User {
         this.fullName = fullName;
         this.targetRole = targetRole;
         this.skillsSummary = skillsSummary;
+    }
+
+    public User(UUID id, String email, String passwordHash, String fullName, String targetRole, String skillsSummary, String resumeText) {
+        this.id = id;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.fullName = fullName;
+        this.targetRole = targetRole;
+        this.skillsSummary = skillsSummary;
+        this.resumeText = resumeText;
     }
 
     @PrePersist
@@ -103,6 +116,14 @@ public class User {
 
     public void setSkillsSummary(String skillsSummary) {
         this.skillsSummary = skillsSummary;
+    }
+
+    public String getResumeText() {
+        return resumeText;
+    }
+
+    public void setResumeText(String resumeText) {
+        this.resumeText = resumeText;
     }
 
     public Instant getCreatedAt() {

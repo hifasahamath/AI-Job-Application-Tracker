@@ -99,6 +99,7 @@ public class AuthService {
                 user.getFullName(),
                 user.getTargetRole(),
                 user.getSkillsSummary(),
+                user.getResumeText(),
                 user.getCreatedAt()
         );
     }
@@ -111,6 +112,7 @@ public class AuthService {
         user.setFullName(request.getFullName().trim());
         user.setTargetRole(request.getTargetRole());
         user.setSkillsSummary(request.getSkillsSummary());
+        user.setResumeText(request.getResumeText());
 
         User updatedUser = userRepository.save(user);
 
@@ -120,6 +122,7 @@ public class AuthService {
                 updatedUser.getFullName(),
                 updatedUser.getTargetRole(),
                 updatedUser.getSkillsSummary(),
+                updatedUser.getResumeText(),
                 updatedUser.getCreatedAt()
         );
     }

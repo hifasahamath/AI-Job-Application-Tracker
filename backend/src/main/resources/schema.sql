@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     full_name VARCHAR(255) NOT NULL,
     target_role VARCHAR(255),
     skills_summary TEXT,
+    resume_text TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -34,6 +35,7 @@ CREATE TABLE IF NOT EXISTS job_applications (
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE RESTRICT,
     job_title VARCHAR(255) NOT NULL,
     job_description TEXT,
+    custom_resume_text TEXT,
     job_url VARCHAR(1000),
     status VARCHAR(50) NOT NULL DEFAULT 'SAVED',
     salary_min NUMERIC(12, 2),

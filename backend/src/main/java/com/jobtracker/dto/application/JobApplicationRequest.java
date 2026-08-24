@@ -21,6 +21,7 @@ public class JobApplicationRequest {
     private String jobTitle;
 
     private String jobDescription;
+    private String customResumeText;
     private String jobUrl;
 
     private ApplicationStatus status = ApplicationStatus.SAVED;
@@ -69,6 +70,14 @@ public class JobApplicationRequest {
 
     public void setJobDescription(String jobDescription) {
         this.jobDescription = jobDescription;
+    }
+
+    public String getCustomResumeText() {
+        return customResumeText;
+    }
+
+    public void setCustomResumeText(String customResumeText) {
+        this.customResumeText = customResumeText;
     }
 
     public String getJobUrl() {
