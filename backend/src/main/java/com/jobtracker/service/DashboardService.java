@@ -69,7 +69,7 @@ public class DashboardService {
         metrics.setTotalAiAnalysesCount(aiCount);
 
         // Recent Applications
-        List<JobApplicationResponse> recent = applicationRepository.findTop5RecentApplications(userId)
+        List<JobApplicationResponse> recent = applicationRepository.findTop5ByUserIdOrderByCreatedAtDesc(userId)
                 .stream()
                 .map(jobApplicationService::mapToSummaryResponse)
                 .collect(Collectors.toList());

@@ -14,10 +14,7 @@ import { api } from '../../../lib/api';
 import { useToast } from '../../../context/ToastContext';
 import {
   JobApplication,
-  ApplicationStatus,
-  Interview,
-  ApplicationNote,
-  AiAnalysis
+  ApplicationStatus
 } from '../../../types';
 import {
   Briefcase,
@@ -150,8 +147,8 @@ export default function ApplicationDetailPage() {
     return (
       <AppShell>
         <div className="py-24 text-center">
-          <div className="w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs text-slate-400">Loading opportunity details...</p>
+          <div className="w-8 h-8 border-4 border-sky-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-xs text-slate-500 font-medium">Loading opportunity details...</p>
         </div>
       </AppShell>
     );
@@ -161,8 +158,8 @@ export default function ApplicationDetailPage() {
     return (
       <AppShell>
         <div className="py-24 text-center">
-          <p className="text-sm font-semibold text-slate-300">Application not found.</p>
-          <Link href="/applications" className="mt-3 inline-block text-xs text-sky-400 hover:underline">
+          <p className="text-sm font-bold text-slate-700">Application not found.</p>
+          <Link href="/applications" className="mt-3 inline-block text-xs text-sky-600 font-bold hover:underline">
             ← Return to applications
           </Link>
         </div>
@@ -177,7 +174,7 @@ export default function ApplicationDetailPage() {
         <div className="flex items-center justify-between">
           <Link
             href="/applications"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Applications
@@ -186,14 +183,14 @@ export default function ApplicationDetailPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsEditModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs transition-colors"
             >
               <Edit className="w-3.5 h-3.5" />
               Edit
             </button>
             <button
               onClick={handleDeleteApplication}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 shadow-2xs transition-colors"
             >
               <Trash2 className="w-3.5 h-3.5" />
               Delete
@@ -202,18 +199,18 @@ export default function ApplicationDetailPage() {
         </div>
 
         {/* Hero Header Card */}
-        <div className="glass-card rounded-3xl p-6 sm:p-8">
+        <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-2xs">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                   {application.jobTitle}
                 </h1>
                 <PriorityBadge priority={application.priority} />
               </div>
 
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-300">
-                <span className="font-bold text-sm text-sky-400 flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-600">
+                <span className="font-bold text-sm text-sky-700 flex items-center gap-1.5">
                   <Building className="w-4 h-4 text-slate-400" />
                   {application.company?.name}
                 </span>
@@ -222,7 +219,7 @@ export default function ApplicationDetailPage() {
                 {application.salaryMin || application.salaryMax ? (
                   <>
                     <span>•</span>
-                    <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                    <span className="text-emerald-700 font-bold flex items-center gap-1">
                       <DollarSign className="w-3.5 h-3.5" />
                       {application.salaryMin && application.salaryMax
                         ? `${application.salaryCurrency} ${(application.salaryMin / 1000).toFixed(0)}k - ${(application.salaryMax / 1000).toFixed(0)}k`
@@ -237,7 +234,7 @@ export default function ApplicationDetailPage() {
                       href={application.jobUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sky-400 hover:underline flex items-center gap-1 font-medium"
+                      className="text-sky-600 hover:underline flex items-center gap-1 font-bold"
                     >
                       <Globe className="w-3.5 h-3.5" />
                       Job Posting Link
@@ -251,13 +248,13 @@ export default function ApplicationDetailPage() {
             {/* Status Selector & AI Action */}
             <div className="flex flex-wrap items-center gap-3 self-start lg:self-center">
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">
+                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">
                   Pipeline Stage
                 </span>
                 <select
                   value={application.status}
                   onChange={(e) => handleStatusChange(e.target.value as ApplicationStatus)}
-                  className="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-sky-500"
+                  className="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 shadow-2xs"
                 >
                   <option value="SAVED">Saved</option>
                   <option value="APPLIED">Applied</option>
@@ -272,7 +269,7 @@ export default function ApplicationDetailPage() {
               <button
                 onClick={handleRunAiAnalysis}
                 disabled={analyzingAi}
-                className="mt-4 sm:mt-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white shadow-lg shadow-sky-600/25 transition-all disabled:opacity-50"
+                className="mt-4 sm:mt-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white shadow-sm shadow-sky-600/20 transition-all disabled:opacity-50 active:scale-95"
               >
                 <Sparkles className={`w-4 h-4 text-sky-200 ${analyzingAi ? 'animate-spin' : ''}`} />
                 {analyzingAi ? 'Analyzing with Gemini...' : 'Analyze with AI'}
@@ -282,13 +279,13 @@ export default function ApplicationDetailPage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-slate-800 pb-1">
+        <div className="flex items-center gap-2 border-b border-slate-200 pb-1 overflow-x-auto">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
               activeTab === 'overview'
-                ? 'bg-slate-800 text-sky-400 border border-slate-700 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                ? 'bg-sky-50 text-sky-700 border border-sky-200 shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <Briefcase className="w-4 h-4" />
@@ -297,16 +294,16 @@ export default function ApplicationDetailPage() {
 
           <button
             onClick={() => setActiveTab('ai')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
               activeTab === 'ai'
-                ? 'bg-slate-800 text-sky-400 border border-slate-700 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
-            <Sparkles className="w-4 h-4 text-indigo-400" />
+            <Sparkles className="w-4 h-4 text-indigo-600" />
             Gemini AI Insights
             {application.latestMatchScore !== undefined && application.latestMatchScore !== null && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-extrabold">
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold border border-emerald-200">
                 {application.latestMatchScore}%
               </span>
             )}
@@ -314,25 +311,25 @@ export default function ApplicationDetailPage() {
 
           <button
             onClick={() => setActiveTab('interviews')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
               activeTab === 'interviews'
-                ? 'bg-slate-800 text-sky-400 border border-slate-700 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                ? 'bg-sky-50 text-sky-700 border border-sky-200 shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
-            <Calendar className="w-4 h-4 text-sky-400" />
+            <Calendar className="w-4 h-4 text-sky-600" />
             Interviews ({application.interviews?.length || 0})
           </button>
 
           <button
             onClick={() => setActiveTab('notes')}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
               activeTab === 'notes'
-                ? 'bg-slate-800 text-sky-400 border border-slate-700 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                ? 'bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
-            <MessageSquare className="w-4 h-4 text-amber-400" />
+            <MessageSquare className="w-4 h-4 text-amber-600" />
             Notes & Prep ({application.notes?.length || 0})
           </button>
         </div>
@@ -340,21 +337,21 @@ export default function ApplicationDetailPage() {
         {/* Tab 1: Overview & Job Description */}
         {activeTab === 'overview' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 glass-card rounded-3xl p-6 sm:p-8 space-y-4">
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <Briefcase className="w-4 h-4 text-sky-400" />
+            <div className="lg:col-span-2 bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xs">
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-sky-600" />
                 Job Description
               </h2>
               {application.jobDescription ? (
-                <div className="prose prose-invert max-w-none text-xs leading-relaxed text-slate-300 whitespace-pre-wrap bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
+                <div className="text-xs leading-relaxed text-slate-700 whitespace-pre-wrap bg-slate-50 p-4 rounded-2xl border border-slate-200/80 font-sans">
                   {application.jobDescription}
                 </div>
               ) : (
-                <div className="py-8 text-center bg-slate-950/40 rounded-2xl border border-slate-800/60">
-                  <p className="text-xs text-slate-400">No job description provided yet.</p>
+                <div className="py-8 text-center bg-slate-50 rounded-2xl border border-slate-200">
+                  <p className="text-xs text-slate-500 font-medium">No job description provided yet.</p>
                   <button
                     onClick={() => setIsEditModalOpen(true)}
-                    className="mt-2 text-xs font-semibold text-sky-400 hover:underline"
+                    className="mt-2 text-xs font-bold text-sky-600 hover:underline"
                   >
                     + Add job description for Gemini AI analysis
                   </button>
@@ -363,36 +360,36 @@ export default function ApplicationDetailPage() {
             </div>
 
             <div className="space-y-6">
-              <div className="glass-card rounded-3xl p-6 space-y-4">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <div className="bg-white border border-slate-200/90 rounded-3xl p-6 space-y-4 shadow-2xs">
+                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                   <Building className="w-4 h-4 text-slate-400" />
                   Company Details
                 </h3>
-                <div className="space-y-2.5 text-xs text-slate-300">
+                <div className="space-y-2.5 text-xs text-slate-600">
                   <div>
-                    <span className="text-slate-500 block text-[11px]">Company Name</span>
-                    <span className="font-semibold text-white">{application.company?.name}</span>
+                    <span className="text-slate-400 block text-[11px] font-medium">Company Name</span>
+                    <span className="font-bold text-slate-800">{application.company?.name}</span>
                   </div>
                   {application.company?.industry && (
                     <div>
-                      <span className="text-slate-500 block text-[11px]">Industry</span>
-                      <span>{application.company.industry}</span>
+                      <span className="text-slate-400 block text-[11px] font-medium">Industry</span>
+                      <span className="font-semibold text-slate-700">{application.company.industry}</span>
                     </div>
                   )}
                   {application.company?.location && (
                     <div>
-                      <span className="text-slate-500 block text-[11px]">Headquarters / Location</span>
-                      <span>{application.company.location}</span>
+                      <span className="text-slate-400 block text-[11px] font-medium">Headquarters / Location</span>
+                      <span className="font-semibold text-slate-700">{application.company.location}</span>
                     </div>
                   )}
                   {application.company?.website && (
                     <div>
-                      <span className="text-slate-500 block text-[11px]">Website</span>
+                      <span className="text-slate-400 block text-[11px] font-medium">Website</span>
                       <a
                         href={application.company.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sky-400 hover:underline"
+                        className="text-sky-600 hover:underline font-bold"
                       >
                         {application.company.website}
                       </a>
@@ -402,22 +399,22 @@ export default function ApplicationDetailPage() {
               </div>
 
               {/* Key Timeline Info */}
-              <div className="glass-card rounded-3xl p-6 space-y-3">
-                <h3 className="text-sm font-bold text-white">Timeline & Deadlines</h3>
-                <div className="space-y-2 text-xs text-slate-300">
+              <div className="bg-white border border-slate-200/90 rounded-3xl p-6 space-y-3 shadow-2xs">
+                <h3 className="text-sm font-bold text-slate-900">Timeline & Deadlines</h3>
+                <div className="space-y-2 text-xs text-slate-600">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-500">Date Applied:</span>
-                    <span>{application.appliedDate ? new Date(application.appliedDate).toLocaleDateString() : 'Not applied'}</span>
+                    <span className="text-slate-400 font-medium">Date Applied:</span>
+                    <span className="font-bold text-slate-800">{application.appliedDate ? new Date(application.appliedDate).toLocaleDateString() : 'Not applied'}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-500">Application Deadline:</span>
-                    <span className={application.deadline ? 'text-amber-400 font-semibold' : ''}>
+                    <span className="text-slate-400 font-medium">Application Deadline:</span>
+                    <span className={application.deadline ? 'text-amber-700 font-bold' : 'font-semibold text-slate-700'}>
                       {application.deadline ? new Date(application.deadline).toLocaleDateString() : 'None specified'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-500">Created:</span>
-                    <span>{new Date(application.createdAt).toLocaleDateString()}</span>
+                    <span className="text-slate-400 font-medium">Created:</span>
+                    <span className="font-semibold text-slate-700">{new Date(application.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
               </div>
@@ -429,18 +426,18 @@ export default function ApplicationDetailPage() {
         {activeTab === 'ai' && (
           <div className="space-y-6">
             {!application.latestAiAnalysis ? (
-              <div className="glass-card rounded-3xl p-12 text-center max-w-xl mx-auto">
-                <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mx-auto mb-4 text-indigo-400">
+              <div className="bg-white border border-slate-200/90 rounded-3xl p-12 text-center max-w-xl mx-auto shadow-2xs">
+                <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mx-auto mb-4 text-indigo-600">
                   <Sparkles className="w-7 h-7" />
                 </div>
-                <h2 className="text-lg font-bold text-white">No AI Analysis Generated Yet</h2>
-                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                <h2 className="text-lg font-bold text-slate-900">No AI Analysis Generated Yet</h2>
+                <p className="text-xs text-slate-500 mt-2 leading-relaxed font-medium">
                   Run our Gemini-powered analysis engine on this job posting to generate an instant match score, skill matrix, custom preparation roadmap, and personalized interview questions.
                 </p>
                 <button
                   onClick={handleRunAiAnalysis}
                   disabled={analyzingAi}
-                  className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white shadow-xl shadow-indigo-600/20 transition-all disabled:opacity-50"
+                  className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white shadow-sm shadow-indigo-600/20 transition-all disabled:opacity-50 active:scale-95"
                 >
                   <Sparkles className="w-4 h-4 text-sky-200" />
                   {analyzingAi ? 'Running Gemini Analysis...' : 'Generate AI Analysis'}
@@ -449,22 +446,22 @@ export default function ApplicationDetailPage() {
             ) : (
               <div className="space-y-6">
                 {/* Score & Summary Banner */}
-                <div className="glass-card rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center gap-8">
+                <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center gap-8 shadow-2xs">
                   <div className="shrink-0 flex flex-col items-center">
                     <ScoreGauge score={application.latestAiAnalysis.matchScore} size="lg" />
                   </div>
                   <div className="space-y-2 flex-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-sky-700 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-sky-600" />
                         Gemini Strategic Evaluation
                       </span>
-                      <span className="text-[11px] text-slate-500">
+                      <span className="text-[11px] text-slate-400 font-medium">
                         Generated {new Date(application.latestAiAnalysis.createdAt).toLocaleDateString()}
                       </span>
                     </div>
-                    <h2 className="text-base font-bold text-white">Candidate Alignment Summary</h2>
-                    <p className="text-xs text-slate-300 leading-relaxed">
+                    <h2 className="text-base font-bold text-slate-900">Candidate Alignment Summary</h2>
+                    <p className="text-xs text-slate-600 leading-relaxed font-normal">
                       {application.latestAiAnalysis.analysisSummary}
                     </p>
                   </div>
@@ -473,16 +470,16 @@ export default function ApplicationDetailPage() {
                 {/* Skills Match Matrix */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Matching Skills */}
-                  <div className="glass-card rounded-3xl p-6 space-y-4">
-                    <h3 className="text-sm font-bold text-emerald-400 flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4" />
+                  <div className="bg-white border border-slate-200/90 rounded-3xl p-6 space-y-4 shadow-2xs">
+                    <h3 className="text-sm font-bold text-emerald-700 flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                       Matching Core Competencies ({application.latestAiAnalysis.matchingSkills?.length || 0})
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {application.latestAiAnalysis.matchingSkills?.map((skill, idx) => (
                         <span
                           key={idx}
-                          className="px-3 py-1 rounded-xl text-xs font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800/60"
+                          className="px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200"
                         >
                           ✓ {skill}
                         </span>
@@ -491,16 +488,16 @@ export default function ApplicationDetailPage() {
                   </div>
 
                   {/* Missing / Expansion Skills */}
-                  <div className="glass-card rounded-3xl p-6 space-y-4">
-                    <h3 className="text-sm font-bold text-amber-400 flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4" />
+                  <div className="bg-white border border-slate-200/90 rounded-3xl p-6 space-y-4 shadow-2xs">
+                    <h3 className="text-sm font-bold text-amber-700 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-amber-600" />
                       Identified Skill Gaps / Focus Areas ({application.latestAiAnalysis.missingSkills?.length || 0})
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {application.latestAiAnalysis.missingSkills?.map((skill, idx) => (
                         <span
                           key={idx}
-                          className="px-3 py-1 rounded-xl text-xs font-semibold bg-amber-950/60 text-amber-300 border border-amber-800/60"
+                          className="px-3 py-1 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200"
                         >
                           ⚠ {skill}
                         </span>
@@ -511,35 +508,35 @@ export default function ApplicationDetailPage() {
 
                 {/* Recommended Preparation Roadmap */}
                 {application.latestAiAnalysis.preparationAreas && application.latestAiAnalysis.preparationAreas.length > 0 && (
-                  <div className="glass-card rounded-3xl p-6 sm:p-8 space-y-4">
-                    <h3 className="text-base font-bold text-white flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-sky-400" />
+                  <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xs">
+                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 text-sky-600" />
                       Recommended Preparation Roadmap
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                       {application.latestAiAnalysis.preparationAreas.map((area, idx) => (
                         <div
                           key={idx}
-                          className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-2 flex flex-col justify-between"
+                          className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 flex flex-col justify-between"
                         >
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-bold text-white">{area.topic}</span>
+                              <span className="text-xs font-bold text-slate-900">{area.topic}</span>
                               <span
-                                className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
                                   area.priority === 'HIGH'
-                                    ? 'bg-rose-950 text-rose-300 border border-rose-800'
-                                    : 'bg-slate-800 text-slate-300'
+                                    ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                    : 'bg-slate-100 text-slate-700 border-slate-200'
                                 }`}
                               >
                                 {area.priority}
                               </span>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed">{area.actionableAdvice}</p>
+                            <p className="text-xs text-slate-600 leading-relaxed font-normal">{area.actionableAdvice}</p>
                           </div>
                           {area.recommendedResources && area.recommendedResources.length > 0 && (
-                            <div className="pt-2 border-t border-slate-800/80 text-[11px] text-sky-400">
-                              <span className="font-semibold text-slate-500 block text-[10px]">Resources:</span>
+                            <div className="pt-2 border-t border-slate-200 text-[11px] text-sky-600 font-medium">
+                              <span className="font-bold text-slate-500 block text-[10px]">Resources:</span>
                               {area.recommendedResources.join(', ')}
                             </div>
                           )}
@@ -551,35 +548,35 @@ export default function ApplicationDetailPage() {
 
                 {/* Predicted Interview Questions */}
                 {application.latestAiAnalysis.interviewQuestions && application.latestAiAnalysis.interviewQuestions.length > 0 && (
-                  <div className="glass-card rounded-3xl p-6 sm:p-8 space-y-4">
-                    <h3 className="text-base font-bold text-white flex items-center gap-2">
-                      <HelpCircle className="w-4 h-4 text-indigo-400" />
+                  <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xs">
+                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                      <HelpCircle className="w-4 h-4 text-indigo-600" />
                       Personalized Interview Questions & Answer Guidance
                     </h3>
                     <div className="space-y-4 mt-4">
                       {application.latestAiAnalysis.interviewQuestions.map((q, idx) => (
                         <div
                           key={idx}
-                          className="p-5 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-2.5"
+                          className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5"
                         >
                           <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">
+                            <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
                               {q.category} Round Question
                             </span>
                           </div>
-                          <p className="text-sm font-bold text-slate-100">{q.question}</p>
+                          <p className="text-sm font-bold text-slate-900">{q.question}</p>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 text-xs">
-                            <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800/80">
-                              <span className="font-bold text-slate-400 block text-[11px] mb-1">
+                            <div className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs">
+                              <span className="font-bold text-slate-700 block text-[11px] mb-1">
                                 Why Recruiter / Hiring Manager Asks This:
                               </span>
-                              <p className="text-slate-300">{q.rationale}</p>
+                              <p className="text-slate-600 leading-relaxed font-normal">{q.rationale}</p>
                             </div>
-                            <div className="p-3 rounded-xl bg-sky-950/30 border border-sky-900/40">
-                              <span className="font-bold text-sky-400 block text-[11px] mb-1">
+                            <div className="p-3.5 rounded-xl bg-sky-50/70 border border-sky-200 shadow-2xs">
+                              <span className="font-bold text-sky-800 block text-[11px] mb-1">
                                 Suggested Answer Framework:
                               </span>
-                              <p className="text-sky-200">{q.suggestedAnswerTip}</p>
+                              <p className="text-sky-900 leading-relaxed font-normal">{q.suggestedAnswerTip}</p>
                             </div>
                           </div>
                         </div>
@@ -594,20 +591,20 @@ export default function ApplicationDetailPage() {
 
         {/* Tab 3: Interviews */}
         {activeTab === 'interviews' && (
-          <div className="glass-card rounded-3xl p-6 sm:p-8 space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xs">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div>
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-sky-400" />
+                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-sky-600" />
                   Scheduled Interview Rounds
                 </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5">
                   Track upcoming technical coding, system design, or cultural rounds.
                 </p>
               </div>
               <button
                 onClick={() => setIsInterviewModalOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/25 transition-all"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-600/20 transition-all active:scale-95"
               >
                 <Plus className="w-4 h-4" />
                 Schedule Round
@@ -617,11 +614,11 @@ export default function ApplicationDetailPage() {
             <div className="space-y-4">
               {!application.interviews || application.interviews.length === 0 ? (
                 <div className="py-12 text-center">
-                  <Calendar className="w-10 h-10 text-slate-600 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm font-semibold text-slate-300">No interview rounds scheduled yet.</p>
+                  <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                  <p className="text-sm font-bold text-slate-700">No interview rounds scheduled yet.</p>
                   <button
                     onClick={() => setIsInterviewModalOpen(true)}
-                    className="mt-3 text-xs font-semibold text-indigo-400 hover:underline"
+                    className="mt-3 text-xs font-bold text-indigo-600 hover:underline"
                   >
                     + Schedule your first round
                   </button>
@@ -630,29 +627,29 @@ export default function ApplicationDetailPage() {
                 application.interviews.map((inv) => (
                   <div
                     key={inv.id}
-                    className="p-5 rounded-2xl bg-slate-950/60 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs"
                   >
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2.5">
-                        <span className="font-bold text-sm text-white">
+                        <span className="font-bold text-sm text-slate-900">
                           Round {inv.roundNumber}: {inv.roundType}
                         </span>
                         <span
-                          className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${
+                          className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${
                             inv.status === 'SCHEDULED'
-                              ? 'bg-sky-950 text-sky-300 border border-sky-800'
+                              ? 'bg-sky-50 text-sky-700 border-sky-200'
                               : inv.status === 'COMPLETED'
-                              ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                              : 'bg-rose-950 text-rose-300 border border-rose-800'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : 'bg-rose-50 text-rose-700 border-rose-200'
                           }`}
                         >
                           {inv.status}
                         </span>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
-                        <span className="flex items-center gap-1 text-indigo-300 font-medium">
-                          <Clock className="w-3.5 h-3.5 text-indigo-400" />
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                        <span className="flex items-center gap-1 text-indigo-600 font-bold">
+                          <Clock className="w-3.5 h-3.5 text-indigo-500" />
                           {new Date(inv.scheduledAt).toLocaleString(undefined, {
                             dateStyle: 'medium',
                             timeStyle: 'short',
@@ -661,15 +658,15 @@ export default function ApplicationDetailPage() {
                         </span>
 
                         {inv.interviewerNames && (
-                          <span className="flex items-center gap-1 text-slate-300">
-                            <UserCheck className="w-3.5 h-3.5 text-slate-500" />
+                          <span className="flex items-center gap-1 text-slate-700 font-medium">
+                            <UserCheck className="w-3.5 h-3.5 text-slate-400" />
                             {inv.interviewerNames}
                           </span>
                         )}
                       </div>
 
                       {inv.notes && (
-                        <p className="text-xs text-slate-400 mt-2 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
+                        <p className="text-xs text-slate-600 mt-2 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
                           {inv.notes}
                         </p>
                       )}
@@ -681,7 +678,7 @@ export default function ApplicationDetailPage() {
                           href={inv.meetingLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-2xs transition-colors"
                         >
                           <Video className="w-3.5 h-3.5" />
                           Join Meeting
@@ -689,7 +686,7 @@ export default function ApplicationDetailPage() {
                       )}
                       <button
                         onClick={() => handleDeleteInterview(inv.id)}
-                        className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 transition-colors"
+                        className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                         title="Delete Interview"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -704,20 +701,20 @@ export default function ApplicationDetailPage() {
 
         {/* Tab 4: Notes & Preparation */}
         {activeTab === 'notes' && (
-          <div className="glass-card rounded-3xl p-6 sm:p-8 space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xs">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div>
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-amber-400" />
+                <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-amber-600" />
                   Application Notes & Follow-ups
                 </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5">
                   Record recruiter conversations, technical prep notes, and offer negotiation terms.
                 </p>
               </div>
               <button
                 onClick={() => setIsNoteModalOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white shadow-md shadow-sky-600/25 transition-all"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-sm shadow-sky-600/20 transition-all active:scale-95"
               >
                 <Plus className="w-4 h-4" />
                 Add Note
@@ -727,11 +724,11 @@ export default function ApplicationDetailPage() {
             <div className="space-y-4">
               {!application.notes || application.notes.length === 0 ? (
                 <div className="py-12 text-center">
-                  <MessageSquare className="w-10 h-10 text-slate-600 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm font-semibold text-slate-300">No notes recorded yet.</p>
+                  <MessageSquare className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                  <p className="text-sm font-bold text-slate-700">No notes recorded yet.</p>
                   <button
                     onClick={() => setIsNoteModalOpen(true)}
-                    className="mt-3 text-xs font-semibold text-sky-400 hover:underline"
+                    className="mt-3 text-xs font-bold text-sky-600 hover:underline"
                   >
                     + Add first note
                   </button>
@@ -740,18 +737,18 @@ export default function ApplicationDetailPage() {
                 application.notes.map((note) => (
                   <div
                     key={note.id}
-                    className="p-5 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-2 flex flex-col sm:flex-row sm:items-start justify-between gap-4"
+                    className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 flex flex-col sm:flex-row sm:items-start justify-between gap-4 shadow-2xs"
                   >
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
-                        {note.title && <span className="font-bold text-sm text-white">{note.title}</span>}
-                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                        {note.title && <span className="font-bold text-sm text-slate-900">{note.title}</span>}
+                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-200/80 text-slate-700 border border-slate-300">
                           {note.category}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">{note.content}</p>
+                      <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">{note.content}</p>
                       {note.createdAt && (
-                        <span className="text-[10px] text-slate-500 block pt-1">
+                        <span className="text-[10px] text-slate-400 block pt-1 font-medium">
                           {new Date(note.createdAt).toLocaleString()}
                         </span>
                       )}
@@ -759,7 +756,7 @@ export default function ApplicationDetailPage() {
 
                     <button
                       onClick={() => handleDeleteNote(note.id)}
-                      className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 transition-colors self-end sm:self-start"
+                      className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors self-end sm:self-start"
                       title="Delete Note"
                     >
                       <Trash2 className="w-4 h-4" />

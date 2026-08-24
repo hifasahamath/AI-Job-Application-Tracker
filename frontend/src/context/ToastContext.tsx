@@ -49,24 +49,24 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`pointer-events-auto flex items-start gap-3 p-4 rounded-xl border shadow-xl backdrop-blur-lg animate-slide-up text-sm font-medium transition-all ${
+            className={`pointer-events-auto flex items-start gap-3 p-4 rounded-2xl border shadow-xl bg-white animate-slide-up text-sm font-medium transition-all ${
               t.type === 'success'
-                ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-100'
+                ? 'border-emerald-200 text-slate-900 shadow-emerald-500/5'
                 : t.type === 'error'
-                ? 'bg-rose-950/80 border-rose-500/30 text-rose-100'
+                ? 'border-rose-200 text-slate-900 shadow-rose-500/5'
                 : t.type === 'warning'
-                ? 'bg-amber-950/80 border-amber-500/30 text-amber-100'
-                : 'bg-slate-900/90 border-slate-700 text-slate-100'
+                ? 'border-amber-200 text-slate-900 shadow-amber-500/5'
+                : 'border-sky-200 text-slate-900 shadow-sky-500/5'
             }`}
           >
-            {t.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />}
-            {t.type === 'error' && <XCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />}
-            {t.type === 'warning' && <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />}
-            {t.type === 'info' && <Info className="w-5 h-5 text-sky-400 shrink-0 mt-0.5" />}
-            <span className="flex-1 leading-relaxed">{t.message}</span>
+            {t.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />}
+            {t.type === 'error' && <XCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />}
+            {t.type === 'warning' && <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />}
+            {t.type === 'info' && <Info className="w-5 h-5 text-sky-600 shrink-0 mt-0.5" />}
+            <span className="flex-1 leading-relaxed text-slate-800">{t.message}</span>
             <button
               onClick={() => removeToast(t.id)}
-              className="text-slate-400 hover:text-white transition-colors"
+              className="text-slate-400 hover:text-slate-700 transition-colors p-0.5 rounded-lg hover:bg-slate-100"
             >
               <X className="w-4 h-4" />
             </button>

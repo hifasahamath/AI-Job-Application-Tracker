@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { AppShell } from '../../components/AppShell';
 import { StatusBadge } from '../../components/StatusBadge';
 import { PriorityBadge } from '../../components/PriorityBadge';
@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 
 function ApplicationsListContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialStatus = searchParams.get('status') as ApplicationStatus | null;
 
@@ -98,11 +99,13 @@ function ApplicationsListContent() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-              <TableIcon className="w-6 h-6 text-sky-400" />
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-sky-50 text-sky-600 border border-sky-100">
+                <TableIcon className="w-5 h-5" />
+              </div>
               All Applications ({totalElements})
             </h1>
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-sm text-slate-500 mt-1 font-medium">
               Search, filter, and inspect your full job application history.
             </p>
           </div>
@@ -112,7 +115,7 @@ function ApplicationsListContent() {
               setEditingApp(null);
               setIsModalOpen(true);
             }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-sky-600 hover:bg-sky-500 text-white shadow-lg shadow-sky-600/25 transition-all self-start sm:self-auto"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-sky-600 hover:bg-sky-700 text-white shadow-sm shadow-sky-600/20 transition-all self-start sm:self-auto active:scale-95"
           >
             <Plus className="w-4 h-4" />
             New Application
@@ -120,9 +123,9 @@ function ApplicationsListContent() {
         </div>
 
         {/* Filter Toolbar */}
-        <div className="glass-card rounded-2xl p-4 flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-4 flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between shadow-2xs">
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-500" />
+            <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
             <input
               type="text"
               placeholder="Search by job title or company..."
@@ -131,20 +134,20 @@ function ApplicationsListContent() {
                 setSearch(e.target.value);
                 setPage(0);
               }}
-              className="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-sky-500 transition-colors"
+              className="w-full bg-white border border-slate-300 rounded-xl pl-10 pr-4 py-2 text-sm text-slate-900 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition-colors"
             />
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
             <div className="flex items-center gap-1.5">
-              <Filter className="w-4 h-4 text-slate-500" />
+              <Filter className="w-4 h-4 text-slate-400" />
               <select
                 value={status}
                 onChange={(e) => {
                   setStatus(e.target.value as ApplicationStatus | '');
                   setPage(0);
                 }}
-                className="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-xs font-medium text-slate-300 focus:outline-none focus:border-sky-500"
+                className="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
               >
                 <option value="">All Statuses</option>
                 <option value="SAVED">Saved</option>
@@ -163,7 +166,7 @@ function ApplicationsListContent() {
                 setPriority(e.target.value as Priority | '');
                 setPage(0);
               }}
-              className="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-xs font-medium text-slate-300 focus:outline-none focus:border-sky-500"
+              className="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
             >
               <option value="">All Priorities</option>
               <option value="DREAM_JOB">Dream Job ⭐</option>
@@ -179,7 +182,7 @@ function ApplicationsListContent() {
                 setSortBy(sb);
                 setSortDir(sd as 'ASC' | 'DESC');
               }}
-              className="bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-2 text-xs font-medium text-slate-300 focus:outline-none focus:border-sky-500"
+              className="bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
             >
               <option value="createdAt-DESC">Newest Created</option>
               <option value="appliedDate-DESC">Applied Date</option>
@@ -190,10 +193,10 @@ function ApplicationsListContent() {
         </div>
 
         {/* Applications Table */}
-        <div className="glass-card rounded-2xl overflow-hidden shadow-xl">
+        <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-2xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-300">
-              <thead className="bg-slate-950/80 text-xs uppercase font-bold text-slate-400 border-b border-slate-800">
+            <table className="w-full text-left text-sm text-slate-700">
+              <thead className="bg-slate-50 text-xs uppercase font-bold text-slate-500 border-b border-slate-200">
                 <tr>
                   <th className="px-5 py-3.5">Company & Role</th>
                   <th className="px-4 py-3.5">Status</th>
@@ -204,17 +207,17 @@ function ApplicationsListContent() {
                   <th className="px-5 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="px-5 py-12 text-center text-xs text-slate-500">
+                    <td colSpan={7} className="px-5 py-12 text-center text-xs text-slate-400">
                       Loading applications data...
                     </td>
                   </tr>
                 ) : applications.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-5 py-12 text-center">
-                      <p className="text-sm font-semibold text-slate-300">No applications match your filter criteria.</p>
+                      <p className="text-sm font-bold text-slate-700">No applications match your filter criteria.</p>
                       <p className="text-xs text-slate-500 mt-1">Try resetting filters or adding a new application.</p>
                     </td>
                   </tr>
@@ -222,17 +225,17 @@ function ApplicationsListContent() {
                   applications.map((app) => (
                     <tr
                       key={app.id}
-                      className="hover:bg-slate-900/40 transition-colors group cursor-pointer"
-                      onClick={() => (window.location.href = `/applications/${app.id}`)}
+                      className="hover:bg-slate-50/90 transition-colors group cursor-pointer"
+                      onClick={() => router.push(`/applications/${app.id}`)}
                     >
                       <td className="px-5 py-4">
                         <div className="space-y-0.5">
-                          <span className="font-bold text-white group-hover:text-sky-300 transition-colors block">
+                          <span className="font-bold text-slate-900 group-hover:text-sky-600 transition-colors block">
                             {app.jobTitle}
                           </span>
-                          <span className="text-xs text-slate-400 flex items-center gap-1.5">
-                            <Building className="w-3.5 h-3.5 text-slate-500" />
-                            {app.company?.name} • {app.workLocationType}
+                          <span className="text-xs text-slate-500 flex items-center gap-1.5">
+                            <Building className="w-3.5 h-3.5 text-slate-400" />
+                            <span className="font-semibold text-slate-700">{app.company?.name}</span> • {app.workLocationType}
                           </span>
                         </div>
                       </td>
@@ -245,16 +248,16 @@ function ApplicationsListContent() {
                         <PriorityBadge priority={app.priority} />
                       </td>
 
-                      <td className="px-4 py-4 text-xs font-medium text-slate-300">
+                      <td className="px-4 py-4 text-xs font-medium text-slate-700">
                         {app.salaryMin || app.salaryMax ? (
-                          <span className="text-emerald-400 font-semibold flex items-center gap-0.5">
+                          <span className="text-emerald-600 font-bold flex items-center gap-0.5">
                             <DollarSign className="w-3 h-3" />
                             {app.salaryMin && app.salaryMax
                               ? `${app.salaryCurrency} ${(app.salaryMin / 1000).toFixed(0)}k - ${(app.salaryMax / 1000).toFixed(0)}k`
                               : `${app.salaryCurrency} ${(app.salaryMin || app.salaryMax! / 1000).toFixed(0)}k`}
                           </span>
                         ) : (
-                          <span className="text-slate-500">—</span>
+                          <span className="text-slate-400">—</span>
                         )}
                       </td>
 
@@ -262,23 +265,23 @@ function ApplicationsListContent() {
                         {app.latestMatchScore !== undefined && app.latestMatchScore !== null ? (
                           <div className="flex items-center gap-2">
                             <ScoreGauge score={app.latestMatchScore} size="sm" showLabel={false} />
-                            <span className="text-xs font-semibold text-slate-300">{app.latestMatchScore}%</span>
+                            <span className="text-xs font-bold text-slate-800">{app.latestMatchScore}%</span>
                           </div>
                         ) : (
-                          <span className="text-[11px] text-slate-500 italic">Not analyzed</span>
+                          <span className="text-[11px] text-slate-400 italic">Not analyzed</span>
                         )}
                       </td>
 
-                      <td className="px-4 py-4 text-xs text-slate-400">
+                      <td className="px-4 py-4 text-xs text-slate-500">
                         <div>
                           {app.appliedDate ? (
-                            <span>Applied {new Date(app.appliedDate).toLocaleDateString()}</span>
+                            <span className="font-medium text-slate-700">Applied {new Date(app.appliedDate).toLocaleDateString()}</span>
                           ) : (
-                            <span className="text-slate-500">Not applied yet</span>
+                            <span className="text-slate-400">Not applied yet</span>
                           )}
                         </div>
                         {app.deadline && (
-                          <div className="text-[11px] text-amber-400 mt-0.5">
+                          <div className="text-[11px] text-amber-700 font-bold mt-0.5">
                             Due {new Date(app.deadline).toLocaleDateString()}
                           </div>
                         )}
@@ -288,21 +291,22 @@ function ApplicationsListContent() {
                         <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={(e) => handleEdit(app, e)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                            className="p-1.5 rounded-xl text-slate-500 hover:text-sky-600 hover:bg-sky-50 transition-colors"
                             title="Edit"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={(e) => handleDelete(app.id, e)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 transition-colors"
+                            className="p-1.5 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                             title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                           <Link
                             href={`/applications/${app.id}`}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-sky-400 hover:bg-slate-800 transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-1.5 rounded-xl text-slate-500 hover:text-sky-600 hover:bg-sky-50 transition-colors"
                             title="View Details"
                           >
                             <ExternalLink className="w-4 h-4" />
@@ -317,7 +321,7 @@ function ApplicationsListContent() {
           </div>
 
           {/* Pagination Controls */}
-          <div className="px-5 py-3.5 bg-slate-950/60 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+          <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 font-medium">
             <span>
               Showing {applications.length} of {totalElements} applications
             </span>
@@ -325,17 +329,17 @@ function ApplicationsListContent() {
               <button
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 disabled={page === 0}
-                className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 disabled:opacity-30 hover:bg-slate-800 transition-colors text-white"
+                className="p-1.5 rounded-xl bg-white border border-slate-200 disabled:opacity-30 hover:bg-slate-100 transition-colors text-slate-700 shadow-2xs"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="font-semibold text-slate-300">
+              <span className="font-bold text-slate-800">
                 Page {page + 1} of {Math.max(1, totalPages)}
               </span>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                 disabled={page >= totalPages - 1}
-                className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 disabled:opacity-30 hover:bg-slate-800 transition-colors text-white"
+                className="p-1.5 rounded-xl bg-white border border-slate-200 disabled:opacity-30 hover:bg-slate-100 transition-colors text-slate-700 shadow-2xs"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -364,8 +368,8 @@ function ApplicationsListContent() {
 export default function ApplicationsListPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[#090d16]">
-        <div className="w-8 h-8 border-4 border-sky-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="w-8 h-8 border-4 border-sky-600 border-t-transparent rounded-full animate-spin" />
       </div>
     }>
       <ApplicationsListContent />

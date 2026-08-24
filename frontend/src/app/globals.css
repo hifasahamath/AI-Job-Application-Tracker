@@ -3,17 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --background: #090d16;
-  --foreground: #f1f5f9;
-  --card: #111827;
-  --card-foreground: #f8fafc;
-  --border: #1f293d;
-  --muted: #94a3b8;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --border: #e2e8f0;
+  --muted: #64748b;
 }
 
 @layer base {
   * {
-    border-color: #1e293b;
+    border-color: #e2e8f0;
   }
   body {
     background-color: var(--background);
@@ -30,23 +30,24 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #94a3b8;
 }
 
 /* Glass card utility */
 .glass-card {
-  background: rgba(17, 24, 39, 0.75);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
 }
 
 .glass-card-hover {
@@ -55,6 +56,6 @@
 
 .glass-card-hover:hover {
   transform: translateY(-2px);
-  border-color: rgba(56, 189, 248, 0.25);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+  border-color: rgba(14, 165, 233, 0.4);
+  box-shadow: 0 10px 20px -5px rgba(14, 165, 233, 0.1), 0 6px 8px -4px rgba(0, 0, 0, 0.04);
 }

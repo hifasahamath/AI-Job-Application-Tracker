@@ -41,8 +41,7 @@ public interface JobApplicationRepository extends JpaRepository<JobApplication, 
     @Query("SELECT j.status, COUNT(j) FROM JobApplication j WHERE j.user.id = :userId GROUP BY j.status")
     List<Object[]> countApplicationsByStatus(@Param("userId") UUID userId);
 
-    @Query("SELECT j FROM JobApplication j WHERE j.user.id = :userId ORDER BY j.createdAt DESC LIMIT 5")
-    List<JobApplication> findTop5RecentApplications(@Param("userId") UUID userId);
+    List<JobApplication> findTop5ByUserIdOrderByCreatedAtDesc(UUID userId);
 
     long countByUserId(UUID userId);
 }

@@ -9,17 +9,17 @@ interface ScoreGaugeProps {
 export const ScoreGauge: React.FC<ScoreGaugeProps> = ({ score, size = 'md', showLabel = true }) => {
   const clampedScore = Math.max(0, Math.min(100, Math.round(score)));
 
-  let strokeColor = '#10b981'; // Emerald >= 80
-  let textColor = 'text-emerald-400';
+  let strokeColor = '#059669'; // Emerald >= 80
+  let textColor = 'text-emerald-600';
   let ratingLabel = 'Excellent Fit';
 
   if (clampedScore < 60) {
-    strokeColor = '#f43f5e'; // Rose < 60
-    textColor = 'text-rose-400';
+    strokeColor = '#e11d48'; // Rose < 60
+    textColor = 'text-rose-600';
     ratingLabel = 'Low Alignment';
   } else if (clampedScore < 80) {
-    strokeColor = '#f59e0b'; // Amber 60-79
-    textColor = 'text-amber-400';
+    strokeColor = '#d97706'; // Amber 60-79
+    textColor = 'text-amber-600';
     ratingLabel = 'Moderate Fit';
   }
 
@@ -41,7 +41,7 @@ export const ScoreGauge: React.FC<ScoreGaugeProps> = ({ score, size = 'md', show
             cx={dimensions.width / 2}
             cy={dimensions.width / 2}
             r={dimensions.radius}
-            stroke="#1e293b"
+            stroke="#e2e8f0"
             strokeWidth={dimensions.stroke}
             fill="transparent"
           />
@@ -66,7 +66,7 @@ export const ScoreGauge: React.FC<ScoreGaugeProps> = ({ score, size = 'md', show
         </div>
       </div>
       {showLabel && (
-        <span className={`mt-1.5 font-medium ${dimensions.labelSize} ${textColor}`}>
+        <span className={`mt-1.5 font-semibold ${dimensions.labelSize} ${textColor}`}>
           {ratingLabel}
         </span>
       )}

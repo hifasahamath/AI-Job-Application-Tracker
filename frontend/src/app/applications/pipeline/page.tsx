@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { AppShell } from '../../../components/AppShell';
 import { KanbanColumn } from '../../../components/KanbanColumn';
 import { ApplicationModal } from '../../../components/ApplicationModal';
-import { InterviewModal } from '../../../components/InterviewModal';
 import { api } from '../../../lib/api';
 import { useToast } from '../../../context/ToastContext';
 import { JobApplication, ApplicationStatus } from '../../../types';
@@ -16,13 +15,13 @@ const COLUMNS: {
   colorClass: string;
   dotClass: string;
 }[] = [
-  { status: 'SAVED', label: 'Saved', colorClass: 'bg-slate-800 text-slate-300', dotClass: 'bg-slate-400' },
-  { status: 'APPLIED', label: 'Applied', colorClass: 'bg-sky-950 text-sky-300 border border-sky-800/60', dotClass: 'bg-sky-400' },
-  { status: 'SCREENING', label: 'Screening', colorClass: 'bg-cyan-950 text-cyan-300 border border-cyan-800/60', dotClass: 'bg-cyan-400' },
-  { status: 'INTERVIEW', label: 'Interview', colorClass: 'bg-indigo-950 text-indigo-300 border border-indigo-700/60', dotClass: 'bg-indigo-400 animate-pulse' },
-  { status: 'OFFER', label: 'Offer', colorClass: 'bg-emerald-950 text-emerald-300 border border-emerald-700/60', dotClass: 'bg-emerald-400' },
-  { status: 'REJECTED', label: 'Rejected', colorClass: 'bg-rose-950 text-rose-300 border border-rose-800/60', dotClass: 'bg-rose-400' },
-  { status: 'WITHDRAWN', label: 'Withdrawn', colorClass: 'bg-zinc-800 text-zinc-400 border border-zinc-700/60', dotClass: 'bg-zinc-500' },
+  { status: 'SAVED', label: 'Saved', colorClass: 'bg-slate-200/80 text-slate-700 border-slate-300', dotClass: 'bg-slate-500' },
+  { status: 'APPLIED', label: 'Applied', colorClass: 'bg-sky-100 text-sky-700 border-sky-200', dotClass: 'bg-sky-500' },
+  { status: 'SCREENING', label: 'Screening', colorClass: 'bg-cyan-100 text-cyan-700 border-cyan-200', dotClass: 'bg-cyan-500' },
+  { status: 'INTERVIEW', label: 'Interview', colorClass: 'bg-indigo-100 text-indigo-700 border-indigo-200', dotClass: 'bg-indigo-500 animate-pulse' },
+  { status: 'OFFER', label: 'Offer', colorClass: 'bg-emerald-100 text-emerald-700 border-emerald-200', dotClass: 'bg-emerald-500' },
+  { status: 'REJECTED', label: 'Rejected', colorClass: 'bg-rose-100 text-rose-700 border-rose-200', dotClass: 'bg-rose-500' },
+  { status: 'WITHDRAWN', label: 'Withdrawn', colorClass: 'bg-zinc-200 text-zinc-600 border-zinc-300', dotClass: 'bg-zinc-400' },
 ];
 
 export default function PipelinePage() {
@@ -74,26 +73,28 @@ export default function PipelinePage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
-              <Kanban className="w-6 h-6 text-sky-400" />
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-sky-50 text-sky-600 border border-sky-100">
+                <Kanban className="w-5 h-5" />
+              </div>
               Application Pipeline
             </h1>
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-sm text-slate-500 mt-1 font-medium">
               Visual Kanban workflow across all job opportunity lifecycle stages.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <button
               onClick={fetchApplications}
-              className="p-2 rounded-xl text-slate-400 hover:text-white bg-slate-900 border border-slate-800 hover:bg-slate-800 transition-colors"
+              className="p-2.5 rounded-xl text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-100 transition-colors shadow-2xs"
               title="Refresh Pipeline"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
             <button
               onClick={() => handleAddInColumn('SAVED')}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-sky-600 hover:bg-sky-500 text-white shadow-lg shadow-sky-600/25 transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-sky-600 hover:bg-sky-700 text-white shadow-sm shadow-sky-600/20 transition-all active:scale-95"
             >
               <Plus className="w-4 h-4" />
               New Application

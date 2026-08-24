@@ -7,7 +7,6 @@ import { PriorityBadge } from './PriorityBadge';
 import { ScoreGauge } from './ScoreGauge';
 import {
   Building,
-  Calendar,
   DollarSign,
   MessageSquare,
   Sparkles,
@@ -38,12 +37,12 @@ export const ApplicationCard: React.FC<ApplicationCardProps> = ({
   const salaryStr = formatSalary(application.salaryMin, application.salaryMax, application.salaryCurrency);
 
   return (
-    <div className="glass-card glass-card-hover rounded-2xl p-4 flex flex-col justify-between group">
+    <div className="bg-white border border-slate-200/90 rounded-2xl p-4 flex flex-col justify-between shadow-2xs hover:shadow-md hover:border-sky-300 transition-all group">
       <div>
         {/* Top badges */}
         <div className="flex items-center justify-between gap-2 mb-2">
-          <span className="text-[11px] font-semibold tracking-wide uppercase text-slate-400 flex items-center gap-1.5 truncate">
-            <Building className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+          <span className="text-[11px] font-semibold tracking-wide uppercase text-slate-500 flex items-center gap-1.5 truncate">
+            <Building className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <span className="truncate">{application.company?.name || 'Company'}</span>
           </span>
           <PriorityBadge priority={application.priority} />
@@ -52,19 +51,19 @@ export const ApplicationCard: React.FC<ApplicationCardProps> = ({
         {/* Title */}
         <Link
           href={`/applications/${application.id}`}
-          className="font-bold text-sm text-slate-100 group-hover:text-sky-300 transition-colors line-clamp-1"
+          className="font-bold text-sm text-slate-900 group-hover:text-sky-600 transition-colors line-clamp-1"
         >
           {application.jobTitle}
         </Link>
 
         {/* Location & Salary */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-slate-400">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-slate-500">
           <span className="flex items-center gap-1">
-            <Briefcase className="w-3 h-3 text-slate-500" />
+            <Briefcase className="w-3 h-3 text-slate-400" />
             {application.workLocationType}
           </span>
           {salaryStr && (
-            <span className="flex items-center gap-0.5 text-emerald-400 font-medium">
+            <span className="flex items-center gap-0.5 text-emerald-600 font-semibold">
               <DollarSign className="w-3 h-3" />
               {salaryStr}
             </span>
@@ -73,9 +72,9 @@ export const ApplicationCard: React.FC<ApplicationCardProps> = ({
 
         {/* AI Score Badge if available */}
         {application.latestMatchScore !== undefined && application.latestMatchScore !== null && (
-          <div className="mt-3 p-2 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-xs text-slate-300">
-              <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+          <div className="mt-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between shadow-2xs">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+              <Sparkles className="w-3.5 h-3.5 text-sky-600" />
               <span>Gemini Match</span>
             </div>
             <ScoreGauge score={application.latestMatchScore} size="sm" showLabel={false} />
@@ -84,22 +83,22 @@ export const ApplicationCard: React.FC<ApplicationCardProps> = ({
       </div>
 
       {/* Footer Info & Stage Movers */}
-      <div className="pt-3 mt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+      <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
         <div className="flex items-center gap-3">
           {application.interviewCount ? (
-            <span className="flex items-center gap-1 text-indigo-300 font-medium" title="Scheduled Interviews">
-              <Clock className="w-3.5 h-3.5 text-indigo-400" />
+            <span className="flex items-center gap-1 text-indigo-600 font-bold" title="Scheduled Interviews">
+              <Clock className="w-3.5 h-3.5 text-indigo-500" />
               {application.interviewCount}
             </span>
           ) : null}
           {application.noteCount ? (
-            <span className="flex items-center gap-1 text-slate-400" title="Notes">
-              <MessageSquare className="w-3.5 h-3.5 text-slate-500" />
+            <span className="flex items-center gap-1 text-slate-500 font-medium" title="Notes">
+              <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
               {application.noteCount}
             </span>
           ) : null}
           {application.appliedDate && (
-            <span className="text-[11px] text-slate-500">
+            <span className="text-[11px] text-slate-400 font-medium">
               {new Date(application.appliedDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
             </span>
           )}
@@ -107,7 +106,7 @@ export const ApplicationCard: React.FC<ApplicationCardProps> = ({
 
         <Link
           href={`/applications/${application.id}`}
-          className="text-slate-400 hover:text-sky-400 p-1 rounded-lg hover:bg-slate-800 transition-colors flex items-center gap-0.5 text-xs font-semibold"
+          className="text-slate-600 hover:text-sky-600 p-1 px-2 rounded-lg hover:bg-sky-50 transition-colors flex items-center gap-0.5 text-xs font-semibold"
         >
           Details
           <ChevronRight className="w-3.5 h-3.5" />
