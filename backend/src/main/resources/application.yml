@@ -7,10 +7,10 @@ spring:
   application:
     name: ai-job-tracker-backend
   datasource:
-    # Defaults to local embedded file DB with PostgreSQL compatibility mode if no external PostgreSQL/Supabase URL is set
-    url: ${SPRING_DATASOURCE_URL:jdbc:h2:file:./data/jobtracker;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;AUTO_SERVER=TRUE}
-    username: ${SPRING_DATASOURCE_USERNAME:sa}
-    password: ${SPRING_DATASOURCE_PASSWORD:}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://db.xhdgmzhtexydpcrnciqf.supabase.co:5432/postgres?sslmode=require}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:CareerPulse-AIPass}
+    driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
