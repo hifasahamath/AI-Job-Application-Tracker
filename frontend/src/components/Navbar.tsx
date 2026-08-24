@@ -32,12 +32,12 @@ export const Navbar: React.FC<NavbarProps> = ({
         </button>
 
         <Link href="/dashboard" className="flex items-center gap-2.5 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 shadow-md shadow-sky-500/20 group-hover:scale-105 transition-transform">
-            <Sparkles className="h-5 w-5 text-white" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden shadow-md shadow-cyan-500/20 border border-cyan-200 group-hover:scale-105 transition-transform bg-white">
+            <img src="/logo.png" alt="CAREER Logo" className="h-full w-full object-cover" />
           </div>
           <div className="flex flex-col">
             <span className="font-extrabold text-base tracking-tight text-slate-900 flex items-center gap-1.5">
-              CareerPulse <span className="text-[11px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-sky-100 text-sky-700 border border-sky-200">AI</span>
+              CAREER <span className="text-[11px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-cyan-100 text-cyan-800 border border-cyan-200">AI</span>
             </span>
             <span className="text-[10px] text-slate-500 hidden sm:inline-block font-medium">Job Application Tracker</span>
           </div>
