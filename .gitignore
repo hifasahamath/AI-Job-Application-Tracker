@@ -6,6 +6,7 @@
 
 # Dependencies
 node_modules/
+frontend/node_modules/
 .pnp
 .pnp.js
 
@@ -13,7 +14,7 @@ node_modules/
 frontend/.next/
 frontend/out/
 frontend/build/
-frontend/node_modules/
+.turbo/
 
 # Maven & Java Backend Build Outputs
 backend/target/
@@ -23,15 +24,26 @@ backend/.maven/
 *.war
 *.ear
 
-# IDE & OS Files
+# Eclipse & VS Code & IntelliJ IDE files
 .idea/
+*.iml
 .vscode/
+.project
+.classpath
+.settings/
+.factorypath
+
+# OS & Logs
 *.swp
 *.swo
 .DS_Store
 Thumbs.db
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Docker data volume directory (if created locally)
+# Docker data volume directory
 postgres_data/
 backend/data/
