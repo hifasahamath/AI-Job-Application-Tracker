@@ -1,7 +1,6 @@
 package com.jobtracker.service;
 
 import com.jobtracker.dto.auth.*;
-import com.jobtracker.exception.BadRequestException;
 import com.jobtracker.exception.DuplicateResourceException;
 import com.jobtracker.exception.ResourceNotFoundException;
 import com.jobtracker.model.User;

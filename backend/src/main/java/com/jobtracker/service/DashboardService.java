@@ -4,15 +4,12 @@ import com.jobtracker.dto.application.DashboardMetricsResponse;
 import com.jobtracker.dto.application.JobApplicationResponse;
 import com.jobtracker.dto.interview.InterviewResponse;
 import com.jobtracker.model.ApplicationStatus;
-import com.jobtracker.model.InterviewStatus;
 import com.jobtracker.model.JobApplication;
 import com.jobtracker.repository.AiAnalysisRepository;
-import com.jobtracker.repository.InterviewRepository;
 import com.jobtracker.repository.JobApplicationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,18 +18,15 @@ import java.util.stream.Collectors;
 public class DashboardService {
 
     private final JobApplicationRepository applicationRepository;
-    private final InterviewRepository interviewRepository;
     private final AiAnalysisRepository aiAnalysisRepository;
     private final JobApplicationService jobApplicationService;
     private final InterviewService interviewService;
 
     public DashboardService(JobApplicationRepository applicationRepository,
-                            InterviewRepository interviewRepository,
                             AiAnalysisRepository aiAnalysisRepository,
                             JobApplicationService jobApplicationService,
                             InterviewService interviewService) {
         this.applicationRepository = applicationRepository;
-        this.interviewRepository = interviewRepository;
         this.aiAnalysisRepository = aiAnalysisRepository;
         this.jobApplicationService = jobApplicationService;
         this.interviewService = interviewService;

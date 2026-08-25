@@ -1,7 +1,6 @@
 package com.jobtracker.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jobtracker.dto.ai.AiAnalysisResultDto;
 import com.jobtracker.repository.AiAnalysisRepository;
 import com.jobtracker.repository.JobApplicationRepository;
 import com.jobtracker.repository.UserRepository;

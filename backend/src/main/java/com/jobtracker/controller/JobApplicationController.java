@@ -9,7 +9,6 @@ import com.jobtracker.model.Priority;
 import com.jobtracker.security.UserPrincipal;
 import com.jobtracker.service.JobApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;

@@ -4,7 +4,6 @@ import com.jobtracker.model.ApplicationStatus;
 import com.jobtracker.model.Priority;
 import com.jobtracker.model.WorkLocationType;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
