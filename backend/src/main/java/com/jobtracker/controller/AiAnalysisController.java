@@ -45,6 +45,14 @@ public class AiAnalysisController {
         return ResponseEntity.ok(ApiResponse.success(history));
     }
 
+    @DeleteMapping("/history")
+    @Operation(summary = "Clear AI analysis history", description = "Deletes all previous AI analysis reports for the authenticated user")
+    public ResponseEntity<ApiResponse<Void>> clearAnalysisHistory(
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        geminiAiService.clearAnalysisHistory(currentUser.getId());
+        return ResponseEntity.ok(ApiResponse.success("History cleared successfully", null));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Get AI analysis report by ID", description = "Retrieves a specific AI analysis by its UUID")
     public ResponseEntity<ApiResponse<AiAnalysisResponse>> getAnalysisById(

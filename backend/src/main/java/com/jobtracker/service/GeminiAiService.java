@@ -107,7 +107,7 @@ public class GeminiAiService {
 
         AiAnalysisResultDto analysisResult;
 
-        if (StringUtils.hasText(geminiApiKey) && !geminiApiKey.equalsIgnoreCase("placeholder") && geminiApiKey.startsWith("AIzaSy")) {
+        if (StringUtils.hasText(geminiApiKey) && !geminiApiKey.equalsIgnoreCase("placeholder")) {
             try {
                 analysisResult = callGeminiApi(request.getJobDescription(), candidateSkills, jobTitle, companyName);
             } catch (Exception e) {
@@ -154,6 +154,11 @@ public class GeminiAiService {
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void clearAnalysisHistory(UUID userId) {
+        aiAnalysisRepository.deleteAllByUserId(userId);
     }
 
     @Transactional(readOnly = true)

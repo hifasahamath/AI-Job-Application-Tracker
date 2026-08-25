@@ -36,11 +36,11 @@ export const ApplicationCard: React.FC<ApplicationCardProps> = ({
   const salaryStr = formatSalary(application.salaryMin, application.salaryMax, application.salaryCurrency);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-3.5 flex flex-col justify-between hover:border-gray-300 transition-colors group">
+    <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col justify-between hover:border-gray-300 hover:shadow-md transition-all group">
       <div>
-        <div className="flex items-center justify-between gap-2 mb-1.5">
-          <span className="text-[11px] font-medium text-gray-500 flex items-center gap-1 truncate">
-            <Building className="w-3 h-3 text-gray-400 shrink-0" />
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <span className="text-xs font-medium text-gray-500 flex items-center gap-1.5 truncate">
+            <Building className="w-3.5 h-3.5 text-gray-400 shrink-0" />
             <span className="truncate">{application.company?.name || 'Company'}</span>
           </span>
           <PriorityBadge priority={application.priority} />
@@ -48,12 +48,12 @@ export const ApplicationCard: React.FC<ApplicationCardProps> = ({
 
         <Link
           href={`/applications/${application.id}`}
-          className="font-medium text-sm text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1"
+          className="font-semibold text-[15px] text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1"
         >
           {application.jobTitle}
         </Link>
 
-        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5 text-xs text-gray-500">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-gray-500">
           <span className="flex items-center gap-1">
             <MapPin className="w-3 h-3 text-gray-400" />
             {application.workLocationType}
@@ -67,29 +67,29 @@ export const ApplicationCard: React.FC<ApplicationCardProps> = ({
         </div>
 
         {application.latestMatchScore !== undefined && application.latestMatchScore !== null && (
-          <div className="mt-2.5 p-2 rounded-md bg-gray-50 flex items-center justify-between">
+          <div className="mt-3 p-2.5 rounded-lg bg-gray-50 flex items-center justify-between">
             <span className="text-xs text-gray-600 font-medium">AI Match</span>
             <ScoreGauge score={application.latestMatchScore} size="sm" showLabel={false} />
           </div>
         )}
       </div>
 
-      <div className="pt-2.5 mt-2.5 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-        <div className="flex items-center gap-2.5">
+      <div className="pt-3 mt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+        <div className="flex items-center gap-3">
           {application.interviewCount ? (
             <span className="flex items-center gap-1 text-indigo-600 font-medium" title="Interviews">
-              <Clock className="w-3 h-3" />
+              <Clock className="w-3.5 h-3.5" />
               {application.interviewCount}
             </span>
           ) : null}
           {application.noteCount ? (
             <span className="flex items-center gap-1" title="Notes">
-              <MessageSquare className="w-3 h-3 text-gray-400" />
+              <MessageSquare className="w-3.5 h-3.5 text-gray-400" />
               {application.noteCount}
             </span>
           ) : null}
           {application.appliedDate && (
-            <span className="text-[11px] text-gray-400">
+            <span className="text-xs text-gray-400">
               {new Date(application.appliedDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
             </span>
           )}
@@ -97,7 +97,7 @@ export const ApplicationCard: React.FC<ApplicationCardProps> = ({
 
         <Link
           href={`/applications/${application.id}`}
-          className="text-gray-500 hover:text-gray-900 flex items-center gap-0.5 text-xs font-medium"
+          className="text-gray-500 hover:text-gray-900 flex items-center gap-0.5 text-xs font-semibold transition-colors"
         >
           Details
           <ChevronRight className="w-3.5 h-3.5" />

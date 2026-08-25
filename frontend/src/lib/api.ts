@@ -84,6 +84,22 @@ export const api = {
     return res.data.data;
   },
 
+  uploadProfilePicture: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await client.post<ApiResponse<User>>('/api/v1/auth/profile-picture', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data.data;
+  },
+
+  deleteProfilePicture: async () => {
+    const res = await client.delete<ApiResponse<User>>('/api/v1/auth/profile-picture');
+    return res.data.data;
+  },
+
   // Dashboard
   getDashboardMetrics: async () => {
     const res = await client.get<ApiResponse<DashboardMetrics>>('/api/v1/dashboard/metrics');
@@ -208,6 +224,11 @@ export const api = {
 
   getAiHistory: async () => {
     const res = await client.get<ApiResponse<AiAnalysis[]>>('/api/v1/ai/history');
+    return res.data.data;
+  },
+
+  clearAiHistory: async () => {
+    const res = await client.delete<ApiResponse<void>>('/api/v1/ai/history');
     return res.data.data;
   },
 

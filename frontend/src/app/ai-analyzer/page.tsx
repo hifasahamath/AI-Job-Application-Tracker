@@ -17,34 +17,32 @@ import {
   Briefcase,
   History,
   Plus,
-  RefreshCw
+  RefreshCw,
+  FileText,
+  Copy,
+  Upload,
+  EyeOff,
+  Trash2
 } from 'lucide-react';
 
 export default function AiAnalyzerPage() {
   const { user } = useAuth();
   const { success, error } = useToast();
 
-  const [jobTitle, setJobTitle] = useState('Senior Full Stack Engineer');
-  const [companyName, setCompanyName] = useState('Target Tech Corp');
-  const [jobDescription, setJobDescription] = useState(
-    `We are looking for a Senior Full Stack Engineer to lead backend microservices and frontend web applications.
-Requirements:
-- 5+ years of experience with Java, Spring Boot, and REST API architecture
-- Strong proficiency in modern React, TypeScript, Next.js, and Tailwind CSS
-- Hands-on expertise in PostgreSQL database modeling, query optimization, and transaction handling
-- Experience with Docker containerization, CI/CD, and API Gateway integration (e.g. WSO2 API Platform Cloud)
-- Knowledge of LLM / AI API integration (Google Gemini, OpenAI) and automated testing with JUnit and Mockito.`
-  );
-  const [resumeText, setResumeText] = useState(
-    user?.skillsSummary ||
-      'Experienced Software Engineer with deep expertise in Java 21, Spring Boot, Spring Security, React 18, Next.js, TypeScript, PostgreSQL, and Docker containerization. Built distributed microservices and integrated Google Gemini API models.'
-  );
+  const [jobTitle, setJobTitle] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [jobDescription, setJobDescription] = useState('');
+  const [resumeText, setResumeText] = useState(user?.skillsSummary || '');
 
   const [currentAnalysis, setCurrentAnalysis] = useState<AiAnalysis | null>(null);
   const [history, setHistory] = useState<AiAnalysis[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [clearingHistory, setClearingHistory] = useState(false);
   const [isAppModalOpen, setIsAppModalOpen] = useState(false);
+  const [resumeTab, setResumeTab] = useState<'master' | 'custom'>('master');
+  const [showMasterCv, setShowMasterCv] = useState(true);
+  const [extracting, setExtracting] = useState(false);
 
   useEffect(() => {
     fetchHistory();
@@ -73,6 +71,24 @@ Requirements:
     }
   };
 
+  const handleClearHistory = async () => {
+    if (!window.confirm('Are you sure you want to delete all past analyses? This cannot be undone.')) {
+      return;
+    }
+
+    setClearingHistory(true);
+    try {
+      await api.clearAiHistory();
+      setHistory([]);
+      setCurrentAnalysis(null);
+      success('History cleared successfully.');
+    } catch (err: any) {
+      error(err.message || 'Failed to clear history.');
+    } finally {
+      setClearingHistory(false);
+    }
+  };
+
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!jobDescription.trim()) {
@@ -82,11 +98,15 @@ Requirements:
 
     setLoading(true);
     try {
+      const finalResumeText = resumeTab === 'master' 
+        ? (user?.resumeText || user?.skillsSummary || '') 
+        : resumeText;
+
       const result = await api.analyzeJob({
         jobTitle: jobTitle.trim() || undefined,
         companyName: companyName.trim() || undefined,
         jobDescription: jobDescription.trim(),
-        resumeText: resumeText.trim() || undefined,
+        resumeText: finalResumeText.trim() || undefined,
       });
 
       setCurrentAnalysis(result);
@@ -96,6 +116,39 @@ Requirements:
       error(err.message || 'AI Analysis failed.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setExtracting(true);
+    try {
+      if (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const text = event.target?.result as string;
+          if (text) {
+            setResumeText(text);
+            success(`Imported text from ${file.name}`);
+          }
+          setExtracting(false);
+        };
+        reader.readAsText(file);
+      } else {
+        const extracted = await api.extractResumeText(file);
+        if (extracted && extracted.trim()) {
+          setResumeText(extracted.trim());
+          success(`Extracted text from ${file.name}`);
+        } else {
+          error('No readable text found in document.');
+        }
+        setExtracting(false);
+      }
+    } catch (err: any) {
+      error(err.message || `Failed to extract text from ${file.name}.`);
+      setExtracting(false);
     }
   };
 
@@ -167,17 +220,99 @@ Requirements:
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1 flex items-center justify-between">
-                    <span>Resume / Skills Summary</span>
-                  </label>
-                  <textarea
-                    rows={4}
-                    placeholder="Paste your CV text..."
-                    value={resumeText}
-                    onChange={(e) => setResumeText(e.target.value)}
-                    className={`${inputClass} resize-none leading-relaxed`}
-                  />
+                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                  <div className="bg-gray-50 border-b border-gray-200 p-3 flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                      <FileText className="w-4 h-4 text-gray-500" />
+                      Resume for this job
+                    </span>
+                    <div className="flex bg-white rounded-md border border-gray-200 p-0.5">
+                      <button
+                        type="button"
+                        onClick={() => setResumeTab('master')}
+                        className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                          resumeTab === 'master' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                        }`}
+                      >
+                        Master CV
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setResumeTab('custom')}
+                        className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                          resumeTab === 'custom' ? 'bg-gray-100 text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                        }`}
+                      >
+                        Custom
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-white">
+                    {resumeTab === 'master' ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="flex items-center gap-1.5 text-emerald-700 font-medium">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                            Using Master CV from profile
+                          </span>
+                          <button 
+                            type="button" 
+                            onClick={() => setShowMasterCv(!showMasterCv)}
+                            className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
+                          >
+                            <EyeOff className="w-3.5 h-3.5" />
+                            {showMasterCv ? 'Hide' : 'Show'}
+                          </button>
+                        </div>
+                        {showMasterCv && (
+                          <div className="p-3 bg-gray-50 rounded-md border border-gray-200 max-h-60 overflow-y-auto">
+                            <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans">
+                              {user?.resumeText || user?.skillsSummary || 'No Master CV found in profile.'}
+                            </pre>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-500">Custom resume for this position:</span>
+                          <div className="flex items-center gap-3 text-xs font-medium">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const masterText = user?.resumeText || user?.skillsSummary || '';
+                                setResumeText(masterText);
+                                success('Copied Master CV');
+                              }}
+                              className="flex items-center gap-1 text-gray-600 hover:text-gray-900 transition-colors"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                              Copy Master CV
+                            </button>
+                            <label className="cursor-pointer flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors">
+                              <Upload className={`w-3.5 h-3.5 ${extracting ? 'animate-bounce' : ''}`} />
+                              {extracting ? 'Upload' : 'Upload'}
+                              <input
+                                type="file"
+                                accept=".txt,.pdf,.docx,.doc,.md"
+                                disabled={extracting}
+                                onChange={handleFileUpload}
+                                className="hidden"
+                              />
+                            </label>
+                          </div>
+                        </div>
+                        <textarea
+                          rows={6}
+                          placeholder="Paste or customize your resume for this position..."
+                          value={resumeText}
+                          onChange={(e) => setResumeText(e.target.value)}
+                          className={`${inputClass} resize-none leading-relaxed text-sm`}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <button
@@ -197,13 +332,24 @@ Requirements:
                   <History className="w-3.5 h-3.5" />
                   Past Analyses
                 </h3>
-                <button
-                  onClick={fetchHistory}
-                  className="text-gray-400 hover:text-gray-700 p-1 rounded transition-colors"
-                  title="Refresh history"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 ${loadingHistory ? 'animate-spin' : ''}`} />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={handleClearHistory}
+                    disabled={clearingHistory || history.length === 0}
+                    className="text-gray-400 hover:text-red-600 disabled:opacity-50 p-1 rounded transition-colors"
+                    title="Clear history"
+                  >
+                    <Trash2 className={`w-3.5 h-3.5 ${clearingHistory ? 'animate-pulse' : ''}`} />
+                  </button>
+                  <button
+                    onClick={fetchHistory}
+                    disabled={loadingHistory}
+                    className="text-gray-400 hover:text-gray-700 disabled:opacity-50 p-1 rounded transition-colors"
+                    title="Refresh history"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loadingHistory ? 'animate-spin' : ''}`} />
+                  </button>
+                </div>
               </div>
 
               <div className="mt-3 space-y-2 max-h-60 overflow-y-auto pr-1">

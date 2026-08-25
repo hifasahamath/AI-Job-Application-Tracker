@@ -20,4 +20,6 @@ public interface AiAnalysisRepository extends JpaRepository<AiAnalysis, UUID> {
     Optional<AiAnalysis> findTopByApplicationIdOrderByCreatedAtDesc(UUID applicationId);
 
     long countByUserId(UUID userId);
+
+    void deleteAllByUserId(UUID userId);
 }

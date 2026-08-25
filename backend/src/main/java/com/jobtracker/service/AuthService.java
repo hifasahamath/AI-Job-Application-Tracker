@@ -100,6 +100,7 @@ public class AuthService {
                 user.getTargetRole(),
                 user.getSkillsSummary(),
                 user.getResumeText(),
+                user.getProfilePictureUrl(),
                 user.getCreatedAt()
         );
     }
@@ -123,6 +124,27 @@ public class AuthService {
                 updatedUser.getTargetRole(),
                 updatedUser.getSkillsSummary(),
                 updatedUser.getResumeText(),
+                updatedUser.getProfilePictureUrl(),
+                updatedUser.getCreatedAt()
+        );
+    }
+
+    @Transactional
+    public UserProfileResponse updateProfilePictureUrl(UUID userId, String profilePictureUrl) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        user.setProfilePictureUrl(profilePictureUrl);
+        User updatedUser = userRepository.save(user);
+
+        return new UserProfileResponse(
+                updatedUser.getId(),
+                updatedUser.getEmail(),
+                updatedUser.getFullName(),
+                updatedUser.getTargetRole(),
+                updatedUser.getSkillsSummary(),
+                updatedUser.getResumeText(),
+                updatedUser.getProfilePictureUrl(),
                 updatedUser.getCreatedAt()
         );
     }

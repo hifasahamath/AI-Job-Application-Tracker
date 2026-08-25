@@ -33,6 +33,7 @@ export interface User {
   targetRole?: string;
   skillsSummary?: string;
   resumeText?: string;
+  profilePictureUrl?: string;
   createdAt?: string;
 }
 

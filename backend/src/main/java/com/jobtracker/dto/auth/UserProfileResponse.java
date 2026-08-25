@@ -11,6 +11,7 @@ public class UserProfileResponse {
     private String targetRole;
     private String skillsSummary;
     private String resumeText;
+    private String profilePictureUrl;
     private Instant createdAt;
 
     public UserProfileResponse() {
@@ -32,6 +33,17 @@ public class UserProfileResponse {
         this.targetRole = targetRole;
         this.skillsSummary = skillsSummary;
         this.resumeText = resumeText;
+        this.createdAt = createdAt;
+    }
+
+    public UserProfileResponse(UUID id, String email, String fullName, String targetRole, String skillsSummary, String resumeText, String profilePictureUrl, Instant createdAt) {
+        this.id = id;
+        this.email = email;
+        this.fullName = fullName;
+        this.targetRole = targetRole;
+        this.skillsSummary = skillsSummary;
+        this.resumeText = resumeText;
+        this.profilePictureUrl = profilePictureUrl;
         this.createdAt = createdAt;
     }
 
@@ -89,5 +101,13 @@ public class UserProfileResponse {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getProfilePictureUrl() {
+        return profilePictureUrl;
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
     }
 }

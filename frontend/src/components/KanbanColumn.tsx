@@ -27,31 +27,33 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
   onStatusChange,
 }) => {
   return (
-    <div className="flex flex-col flex-1 min-w-[260px] max-w-[320px] rounded-lg bg-gray-50 border border-gray-200 p-3 h-full">
-      <div className="flex items-center justify-between pb-2.5 px-0.5">
-        <div className="flex items-center gap-2">
-          <span className={`w-2 h-2 rounded-full ${dotClass}`} />
-          <h3 className="font-medium text-sm text-gray-800">{label}</h3>
-          <span className="text-xs font-medium text-gray-500 bg-white border border-gray-200 px-1.5 py-0.5 rounded">
+    <div className="flex flex-col min-w-[300px] w-[320px] shrink-0 rounded-xl bg-gray-50/80 border border-gray-200 shadow-sm h-full">
+      {/* Column header — sticky within the column */}
+      <div className="flex items-center justify-between p-3.5 px-4 border-b border-gray-200/60">
+        <div className="flex items-center gap-2.5">
+          <span className={`w-2.5 h-2.5 rounded-full ${dotClass}`} />
+          <h3 className="font-semibold text-base text-gray-800">{label}</h3>
+          <span className="text-xs font-semibold text-gray-500 bg-white border border-gray-200 px-2 py-0.5 rounded-md shadow-sm">
             {count}
           </span>
         </div>
         <button
           onClick={() => onAddInColumn(status)}
-          className="p-1 rounded-md text-gray-400 hover:text-gray-700 hover:bg-white transition-colors"
+          className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-white transition-colors"
           title={`Add ${label} application`}
         >
           <Plus className="w-4 h-4" />
         </button>
       </div>
 
-      <div className="flex-1 space-y-2 overflow-y-auto pr-0.5">
+      {/* Card list — independently scrollable */}
+      <div className="flex-1 overflow-y-auto kanban-column-scroll p-3 space-y-2.5">
         {applications.length === 0 ? (
-          <div className="h-28 border border-dashed border-gray-200 rounded-md bg-white flex flex-col items-center justify-center p-4 text-center">
-            <p className="text-xs text-gray-400">No applications</p>
+          <div className="h-32 border-2 border-dashed border-gray-200 rounded-xl bg-white/60 flex flex-col items-center justify-center p-4 text-center">
+            <p className="text-sm text-gray-400">No applications</p>
             <button
               onClick={() => onAddInColumn(status)}
-              className="mt-1 text-xs text-blue-600 hover:text-blue-700 font-medium hover:underline"
+              className="mt-2 text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline transition-colors"
             >
               + Add first
             </button>

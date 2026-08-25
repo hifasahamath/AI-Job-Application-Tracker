@@ -5,6 +5,7 @@ import com.jobtracker.dto.auth.*;
 import com.jobtracker.security.UserPrincipal;
 import com.jobtracker.service.AuthService;
 import com.jobtracker.service.ResumeParserService;
+import com.jobtracker.service.SupabaseStorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -22,10 +23,13 @@ public class AuthController {
 
     private final AuthService authService;
     private final ResumeParserService resumeParserService;
+    private final SupabaseStorageService supabaseStorageService;
 
-    public AuthController(AuthService authService, ResumeParserService resumeParserService) {
+    public AuthController(AuthService authService, ResumeParserService resumeParserService,
+                          SupabaseStorageService supabaseStorageService) {
         this.authService = authService;
         this.resumeParserService = resumeParserService;
+        this.supabaseStorageService = supabaseStorageService;
     }
 
     @PostMapping("/register")
@@ -57,6 +61,25 @@ public class AuthController {
             @Valid @RequestBody UpdateProfileRequest request) {
         UserProfileResponse updated = authService.updateProfile(currentUser.getId(), request);
         return ResponseEntity.ok(ApiResponse.success("Profile updated successfully", updated));
+    }
+
+    @PostMapping(value = "/profile-picture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload profile picture", description = "Uploads a profile picture to Supabase Storage and saves the URL")
+    public ResponseEntity<ApiResponse<UserProfileResponse>> uploadProfilePicture(
+            @AuthenticationPrincipal UserPrincipal currentUser,
+            @RequestParam("file") MultipartFile file) {
+        String publicUrl = supabaseStorageService.uploadProfilePicture(currentUser.getId(), file);
+        UserProfileResponse updated = authService.updateProfilePictureUrl(currentUser.getId(), publicUrl);
+        return ResponseEntity.ok(ApiResponse.success("Profile picture uploaded successfully", updated));
+    }
+
+    @DeleteMapping("/profile-picture")
+    @Operation(summary = "Delete profile picture", description = "Removes the profile picture from storage and clears the URL")
+    public ResponseEntity<ApiResponse<UserProfileResponse>> deleteProfilePicture(
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        supabaseStorageService.deleteProfilePicture(currentUser.getId());
+        UserProfileResponse updated = authService.updateProfilePictureUrl(currentUser.getId(), null);
+        return ResponseEntity.ok(ApiResponse.success("Profile picture removed", updated));
     }
 
     @PostMapping(value = "/extract-resume", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

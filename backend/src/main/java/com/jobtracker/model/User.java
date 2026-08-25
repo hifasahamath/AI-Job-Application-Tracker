@@ -31,6 +31,9 @@ public class User {
     @Column(name = "resume_text", columnDefinition = "TEXT")
     private String resumeText;
 
+    @Column(name = "profile_picture_url")
+    private String profilePictureUrl;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -124,6 +127,14 @@ public class User {
 
     public void setResumeText(String resumeText) {
         this.resumeText = resumeText;
+    }
+
+    public String getProfilePictureUrl() {
+        return profilePictureUrl;
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
     }
 
     public Instant getCreatedAt() {
