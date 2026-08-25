@@ -8,8 +8,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 @Repository
 public interface AiAnalysisRepository extends JpaRepository<AiAnalysis, UUID> {
+
+    @Query("SELECT AVG(a.matchScore) FROM AiAnalysis a WHERE a.user.id = :userId")
+    Double getAverageMatchScoreByUserId(@Param("userId") UUID userId);
 
     List<AiAnalysis> findAllByUserIdOrderByCreatedAtDesc(UUID userId);
 

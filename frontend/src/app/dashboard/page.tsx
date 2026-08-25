@@ -255,7 +255,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="mt-5 flex flex-col items-center justify-center text-center flex-1">
-              <ScoreGauge score={metrics?.totalAiAnalysesCount ? 84 : 75} size="lg" />
+              <ScoreGauge score={metrics?.averageMatchScore ? Math.round(metrics.averageMatchScore) : 0} size="lg" />
               <p className="text-base font-semibold text-gray-800 mt-4">
                 {metrics?.totalAiAnalysesCount || 0} jobs analyzed
               </p>

@@ -68,6 +68,9 @@ public class DashboardService {
         long aiCount = aiAnalysisRepository.countByUserId(userId);
         metrics.setTotalAiAnalysesCount(aiCount);
 
+        Double avgScore = aiAnalysisRepository.getAverageMatchScoreByUserId(userId);
+        metrics.setAverageMatchScore(avgScore != null ? avgScore : 0.0);
+
         // Recent Applications
         List<JobApplicationResponse> recent = applicationRepository.findTop5ByUserIdOrderByCreatedAtDesc(userId)
                 .stream()
