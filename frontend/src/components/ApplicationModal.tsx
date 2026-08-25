@@ -264,6 +264,16 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
             </div>
           </div>
 
+          {status === 'INTERVIEW' && (
+            <div className="col-span-full mt-2 text-xs text-blue-700 bg-blue-50 p-2.5 rounded-md border border-blue-200 flex items-start gap-2">
+              <Calendar className="w-4 h-4 shrink-0 mt-0.5 text-blue-600" />
+              <p>
+                <strong>Note:</strong> Setting the status here updates the application label, but doesn't add an interview to your calendar.<br/>
+                After saving, click this application's row to open its details page, then go to the <strong>Interviews</strong> tab to schedule the date and time!
+              </p>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className={labelClass}>Salary Min</label>
