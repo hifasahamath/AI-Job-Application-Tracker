@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
     target_role VARCHAR(255),
     skills_summary TEXT,
     resume_text TEXT,
+    profile_picture_url VARCHAR(1000),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -106,3 +107,50 @@ CREATE TABLE IF NOT EXISTS ai_analyses (
 
 CREATE INDEX IF NOT EXISTS idx_ai_analyses_user ON ai_analyses(user_id);
 CREATE INDEX IF NOT EXISTS idx_ai_analyses_app ON ai_analyses(application_id);
+
+-- ==========================================
+-- SUPABASE ROW LEVEL SECURITY (RLS) POLICIES
+-- ==========================================
+
+-- 1. Users Table
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can only view their own profile" ON users
+    FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Users can only update their own profile" ON users
+    FOR UPDATE USING (auth.uid() = id);
+
+-- 2. Companies Table
+ALTER TABLE companies ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage own companies" ON companies
+    FOR ALL USING (auth.uid() = user_id);
+
+-- 3. Job Applications Table
+ALTER TABLE job_applications ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage own job applications" ON job_applications
+    FOR ALL USING (auth.uid() = user_id);
+
+-- 4. Interviews Table
+ALTER TABLE interviews ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage own interviews" ON interviews
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM job_applications ja
+            WHERE ja.id = interviews.application_id AND ja.user_id = auth.uid()
+        )
+    );
+
+-- 5. Application Notes Table
+ALTER TABLE application_notes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage own notes" ON application_notes
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM job_applications ja
+            WHERE ja.id = application_notes.application_id AND ja.user_id = auth.uid()
+        )
+    );
+
+-- 6. AI Analyses Table
+ALTER TABLE ai_analyses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can manage own AI analyses" ON ai_analyses
+    FOR ALL USING (auth.uid() = user_id);
+

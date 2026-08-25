@@ -21,6 +21,10 @@ public interface AiAnalysisRepository extends JpaRepository<AiAnalysis, UUID> {
 
     Optional<AiAnalysis> findByIdAndUserId(UUID id, UUID userId);
 
+    List<AiAnalysis> findAllByApplicationIdAndUserIdOrderByCreatedAtDesc(UUID applicationId, UUID userId);
+
+    Optional<AiAnalysis> findTopByApplicationIdAndUserIdOrderByCreatedAtDesc(UUID applicationId, UUID userId);
+
     List<AiAnalysis> findAllByApplicationIdOrderByCreatedAtDesc(UUID applicationId);
 
     Optional<AiAnalysis> findTopByApplicationIdOrderByCreatedAtDesc(UUID applicationId);

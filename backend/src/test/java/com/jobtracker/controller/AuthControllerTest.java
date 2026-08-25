@@ -46,6 +46,12 @@ class AuthControllerTest {
     private ResumeParserService resumeParserService;
 
     @MockBean
+    private com.jobtracker.service.SupabaseStorageService supabaseStorageService;
+
+    @MockBean
+    private com.jobtracker.security.RateLimitingFilter rateLimitingFilter;
+
+    @MockBean
     private JwtTokenProvider jwtTokenProvider;
 
     @MockBean

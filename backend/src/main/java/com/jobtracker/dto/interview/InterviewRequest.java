@@ -2,7 +2,10 @@ package com.jobtracker.dto.interview;
 
 import com.jobtracker.model.InterviewStatus;
 import com.jobtracker.model.RoundType;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -15,15 +18,26 @@ public class InterviewRequest {
     @NotNull(message = "Round type is required")
     private RoundType roundType = RoundType.SCREENING;
 
+    @Min(value = 1, message = "Round number must be at least 1")
+    @Max(value = 100, message = "Round number cannot exceed 100")
     private Integer roundNumber = 1;
 
     @NotNull(message = "Scheduled time is required")
     private Instant scheduledAt;
 
+    @Min(value = 5, message = "Duration must be at least 5 minutes")
+    @Max(value = 1440, message = "Duration cannot exceed 1440 minutes (24 hours)")
     private Integer durationMinutes = 45;
+
+    @Size(max = 1000, message = "Meeting link cannot exceed 1000 characters")
     private String meetingLink;
+
+    @Size(max = 500, message = "Interviewer names cannot exceed 500 characters")
     private String interviewerNames;
+
     private InterviewStatus status = InterviewStatus.SCHEDULED;
+
+    @Size(max = 10000, message = "Notes cannot exceed 10000 characters")
     private String notes;
 
     public InterviewRequest() {

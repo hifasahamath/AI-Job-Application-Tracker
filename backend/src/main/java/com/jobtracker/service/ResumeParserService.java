@@ -14,45 +14,74 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 
 @Service
 public class ResumeParserService {
 
     private static final Logger log = LoggerFactory.getLogger(ResumeParserService.class);
 
+    private static final long MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+    private static final int MAX_EXTRACTED_CHARACTERS = 50000;
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".pdf", ".docx", ".txt", ".md");
+
     public String extractText(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new BadRequestException("Uploaded file is empty or missing.");
+            throw new BadRequestException("Uploaded document file is empty or missing.");
+        }
+
+        if (file.getSize() > MAX_FILE_SIZE_BYTES) {
+            throw new BadRequestException("Document file size exceeds the maximum allowed limit of 10MB.");
         }
 
         String filename = file.getOriginalFilename();
-        if (filename == null) {
-            filename = "document.pdf";
+        if (filename == null || filename.isBlank()) {
+            throw new BadRequestException("Document filename cannot be empty.");
         }
-        String lowerFilename = filename.toLowerCase();
+
+        int dotIdx = filename.lastIndexOf('.');
+        if (dotIdx == -1) {
+            throw new BadRequestException("Document must have a valid extension (.pdf, .docx, .txt, .md).");
+        }
+
+        String ext = filename.substring(dotIdx).toLowerCase();
+        if (!ALLOWED_EXTENSIONS.contains(ext)) {
+            throw new BadRequestException("File type " + ext + " is not supported. Allowed formats: PDF, DOCX, TXT, MD.");
+        }
 
         log.info("Extracting resume text from file [{}] size [{}] bytes", filename, file.getSize());
 
         try {
-            if (lowerFilename.endsWith(".pdf")) {
+            if (ext.equals(".pdf")) {
+                validatePdfHeader(file);
                 return extractTextFromPdf(file);
-            } else if (lowerFilename.endsWith(".docx")) {
+            } else if (ext.equals(".docx")) {
+                validateDocxHeader(file);
                 return extractTextFromDocx(file);
-            } else if (lowerFilename.endsWith(".txt") || lowerFilename.endsWith(".md")) {
-                return extractTextFromPlainText(file);
             } else {
-                // Fallback attempt: try PDF first, then plain text
-                try {
-                    return extractTextFromPdf(file);
-                } catch (Exception e) {
-                    return extractTextFromPlainText(file);
-                }
+                return extractTextFromPlainText(file);
             }
         } catch (BadRequestException e) {
             throw e;
         } catch (Exception e) {
             log.error("Failed to parse resume document [{}]: {}", filename, e.getMessage(), e);
-            throw new BadRequestException("Failed to extract text from " + filename + ": " + e.getMessage());
+            throw new BadRequestException("Failed to extract text from document: " + e.getMessage());
+        }
+    }
+
+    private void validatePdfHeader(MultipartFile file) throws Exception {
+        byte[] header = new byte[4];
+        int read = file.getInputStream().read(header, 0, 4);
+        if (read < 4 || header[0] != 0x25 || header[1] != 0x50 || header[2] != 0x44 || header[3] != 0x46) { // %PDF
+            throw new BadRequestException("File does not match valid PDF binary signature.");
+        }
+    }
+
+    private void validateDocxHeader(MultipartFile file) throws Exception {
+        byte[] header = new byte[4];
+        int read = file.getInputStream().read(header, 0, 4);
+        if (read < 4 || header[0] != 0x50 || header[1] != 0x4B) { // PK zip signature
+            throw new BadRequestException("File does not match valid DOCX binary signature.");
         }
     }
 
@@ -84,10 +113,16 @@ public class ResumeParserService {
         }
 
         // Normalize multiple empty lines and special non-printable control chars while preserving newlines
-        return text.replace("\r\n", "\n")
-                   .replace("\r", "\n")
-                   .replaceAll("[\\t\\x0B\\f]", " ")
-                   .replaceAll("\n{3,}", "\n\n")
-                   .trim();
+        String cleaned = text.replace("\r\n", "\n")
+                             .replace("\r", "\n")
+                             .replaceAll("[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F]", "")
+                             .replaceAll("\n{3,}", "\n\n")
+                             .trim();
+
+        if (cleaned.length() > MAX_EXTRACTED_CHARACTERS) {
+            cleaned = cleaned.substring(0, MAX_EXTRACTED_CHARACTERS);
+        }
+
+        return cleaned;
     }
 }

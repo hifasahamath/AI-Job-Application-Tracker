@@ -1,6 +1,7 @@
 package com.jobtracker.dto.ai;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
@@ -8,13 +9,20 @@ public class AiAnalysisRequest {
 
     private UUID applicationId;
 
+    @Size(max = 255, message = "Job title cannot exceed 255 characters")
     private String jobTitle;
+
+    @Size(max = 255, message = "Company name cannot exceed 255 characters")
     private String companyName;
 
     @NotBlank(message = "Job description cannot be empty")
+    @Size(max = 20000, message = "Job description cannot exceed 20000 characters")
     private String jobDescription;
 
+    @Size(max = 20000, message = "Resume text cannot exceed 20000 characters")
     private String resumeText;
+
+    @Size(max = 5000, message = "Skills summary cannot exceed 5000 characters")
     private String skillsSummary;
 
     public AiAnalysisRequest() {

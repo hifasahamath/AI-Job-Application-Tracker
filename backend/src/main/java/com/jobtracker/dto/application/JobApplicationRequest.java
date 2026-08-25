@@ -4,6 +4,7 @@ import com.jobtracker.model.ApplicationStatus;
 import com.jobtracker.model.Priority;
 import com.jobtracker.model.WorkLocationType;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,19 +15,28 @@ public class JobApplicationRequest {
     private UUID companyId;
 
     // Optional inline company name if creating company on-the-fly
+    @Size(max = 255, message = "Company name cannot exceed 255 characters")
     private String companyName;
 
     @NotBlank(message = "Job title is required")
+    @Size(max = 255, message = "Job title cannot exceed 255 characters")
     private String jobTitle;
 
+    @Size(max = 50000, message = "Job description cannot exceed 50000 characters")
     private String jobDescription;
+
+    @Size(max = 50000, message = "Custom resume text cannot exceed 50000 characters")
     private String customResumeText;
+
+    @Size(max = 1000, message = "Job URL cannot exceed 1000 characters")
     private String jobUrl;
 
     private ApplicationStatus status = ApplicationStatus.SAVED;
 
     private BigDecimal salaryMin;
     private BigDecimal salaryMax;
+
+    @Size(max = 10, message = "Salary currency cannot exceed 10 characters")
     private String salaryCurrency = "USD";
 
     private WorkLocationType workLocationType = WorkLocationType.REMOTE;
