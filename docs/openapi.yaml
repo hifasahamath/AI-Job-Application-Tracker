@@ -2,9 +2,10 @@ openapi: 3.0.3
 info:
   title: AI Job Application Tracker REST API
   description: |
-    Production-quality REST API for AI Job Application Tracker.
-    Exposes endpoints for user authentication, job application lifecycle management,
-    interview schedules, categorized notes, and Gemini AI-powered job matching analysis.
+    Production-grade REST API for the AI Job Application Tracker.
+    Exposes endpoints for user authentication, profile avatar storage, resume text extraction,
+    job application lifecycle management, interview schedules, categorized notes, companies,
+    and Gemini AI-powered job matching analysis.
     Managed and published through WSO2 API Platform Cloud Gateway.
   version: 1.0.0
   contact:
@@ -43,10 +44,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthApiResponse'
-        '409':
-          description: Email already registered
-        '422':
-          description: Validation error
+        '400':
+          description: Validation error or duplicate email
 
   /api/v1/auth/login:
     post:
@@ -94,7 +93,7 @@ paths:
       tags:
         - Authentication
       summary: Update candidate profile
-      description: Updates candidate's target role and skills summary for AI matching.
+      description: Updates candidate's full name, target role, skills summary, and master resume text.
       security:
         - BearerAuth: []
       requestBody:
@@ -111,6 +110,87 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserProfileApiResponse'
 
+  /api/v1/auth/profile-picture:
+    post:
+      tags:
+        - Authentication
+      summary: Upload profile avatar
+      description: Validates image size and magic byte signatures before uploading to Supabase Storage.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Profile picture uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileApiResponse'
+        '400':
+          description: Invalid image file or storage error
+    delete:
+      tags:
+        - Authentication
+      summary: Delete profile avatar
+      description: Removes the avatar image from Supabase Storage and clears the profilePictureUrl.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profile picture deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileApiResponse'
+
+  /api/v1/auth/extract-resume:
+    post:
+      tags:
+        - Authentication
+      summary: Extract plain text from CV/Resume file
+      description: Uses Apache Tika to parse uploaded PDF, DOCX, or TXT documents and extract plain text.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Plain text extracted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: string
+        '400':
+          description: Unsupported document format or parse error
+
   /api/v1/dashboard/metrics:
     get:
       tags:
@@ -126,6 +206,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DashboardMetricsApiResponse'
+
+  /api/v1/health:
+    get:
+      tags:
+        - Dashboard & Analytics
+      summary: Health check endpoint
+      description: Public health probe for WSO2 Gateway and uptime monitoring.
+      responses:
+        '200':
+          description: Service is healthy
 
   /api/v1/applications:
     get:
@@ -144,6 +234,11 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/Priority'
+        - name: companyId
+          in: query
+          schema:
+            type: string
+            format: uuid
         - name: search
           in: query
           schema:
@@ -198,7 +293,7 @@ paths:
       tags:
         - Job Applications
       summary: Get all applications as flat list
-      description: Retrieves all applications for Kanban board rendering.
+      description: Retrieves all applications for Kanban board rendering without pagination limits.
       security:
         - BearerAuth: []
       responses:
@@ -229,7 +324,7 @@ paths:
       tags:
         - Job Applications
       summary: Update job application
-      description: Updates job application details.
+      description: Updates job application details and metadata.
       security:
         - BearerAuth: []
       parameters:
@@ -326,20 +421,68 @@ paths:
       responses:
         '200':
           description: AI analysis history list
-
-  /api/v1/interviews/upcoming:
-    get:
+    delete:
       tags:
-        - Interviews
-      summary: Get upcoming interviews
-      description: Lists all future scheduled interviews across all applications.
+        - AI Job Analysis
+      summary: Clear AI analysis history
+      description: Deletes all previous AI analysis records for the authenticated user.
       security:
         - BearerAuth: []
       responses:
         '200':
-          description: Upcoming interviews list
+          description: History cleared successfully
+
+  /api/v1/ai/{id}:
+    get:
+      tags:
+        - AI Job Analysis
+      summary: Get AI analysis report by ID
+      description: Retrieves a specific AI analysis report by UUID.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Analysis report retrieved
+        '404':
+          description: Analysis report not found
+
+  /api/v1/ai/application/{applicationId}/latest:
+    get:
+      tags:
+        - AI Job Analysis
+      summary: Get latest analysis for application
+      description: Retrieves the most recent AI evaluation generated for a specific job application.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Latest AI analysis report retrieved
 
   /api/v1/interviews:
+    get:
+      tags:
+        - Interviews
+      summary: Get all interviews
+      description: Retrieves all scheduled future interviews across all user applications.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Interviews list
     post:
       tags:
         - Interviews
@@ -356,6 +499,196 @@ paths:
       responses:
         '201':
           description: Interview scheduled successfully
+
+  /api/v1/interviews/upcoming:
+    get:
+      tags:
+        - Interviews
+      summary: Get upcoming interviews
+      description: Lists all future scheduled interviews chronologically.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Upcoming interviews list
+
+  /api/v1/interviews/application/{applicationId}:
+    get:
+      tags:
+        - Interviews
+      summary: Get interviews for application
+      description: Retrieves all interview rounds scheduled for a specific job application.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Interviews for application retrieved
+
+  /api/v1/interviews/{id}:
+    put:
+      tags:
+        - Interviews
+      summary: Update interview details
+      description: Updates round timing, notes, interviewer names, or meeting URL.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterviewRequest'
+      responses:
+        '200':
+          description: Interview updated successfully
+    delete:
+      tags:
+        - Interviews
+      summary: Delete interview
+      description: Cancels and removes an interview round.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Interview deleted successfully
+
+  /api/v1/interviews/{id}/status:
+    patch:
+      tags:
+        - Interviews
+      summary: Update interview status
+      description: Updates interview progress state (SCHEDULED, COMPLETED, CANCELLED).
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  $ref: '#/components/schemas/InterviewStatus'
+      responses:
+        '200':
+          description: Interview status updated
+
+  /api/v1/companies:
+    get:
+      tags:
+        - Companies
+      summary: List all companies
+      description: Retrieves all saved target companies for the authenticated user.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Companies list
+    post:
+      tags:
+        - Companies
+      summary: Create company
+      description: Adds a new company profile.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyRequest'
+      responses:
+        '201':
+          description: Company created successfully
+
+  /api/v1/companies/{id}:
+    get:
+      tags:
+        - Companies
+      summary: Get company details
+      description: Retrieves company information by ID.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Company details
+    put:
+      tags:
+        - Companies
+      summary: Update company
+      description: Updates company name, website, industry, or location.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyRequest'
+      responses:
+        '200':
+          description: Company updated successfully
+    delete:
+      tags:
+        - Companies
+      summary: Delete company
+      description: Removes a company record.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Company deleted successfully
 
   /api/v1/notes:
     post:
@@ -375,15 +708,66 @@ paths:
         '201':
           description: Note added successfully
 
-  /api/v1/health:
-    get:
+  /api/v1/notes/{id}:
+    put:
       tags:
-        - Dashboard & Analytics
-      summary: Health check endpoint
-      description: Public endpoint for WSO2 Gateway and monitoring probes.
+        - Notes
+      summary: Update note
+      description: Updates title and content of an existing application note.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteRequest'
       responses:
         '200':
-          description: Service is healthy
+          description: Note updated successfully
+    delete:
+      tags:
+        - Notes
+      summary: Delete note
+      description: Removes an application note.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Note deleted successfully
+
+  /api/v1/notes/application/{applicationId}:
+    get:
+      tags:
+        - Notes
+      summary: Get notes for application
+      description: Retrieves all notes associated with a specific job application.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Notes list
 
 components:
   securitySchemes:
@@ -461,6 +845,8 @@ components:
           type: string
         skillsSummary:
           type: string
+        resumeText:
+          type: string
 
     JobApplicationRequest:
       type: object
@@ -531,6 +917,20 @@ components:
         status:
           $ref: '#/components/schemas/InterviewStatus'
         notes:
+          type: string
+
+    CompanyRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        website:
+          type: string
+        industry:
+          type: string
+        location:
           type: string
 
     NoteRequest:
@@ -611,6 +1011,10 @@ components:
               type: string
             skillsSummary:
               type: string
+            resumeText:
+              type: string
+            profilePictureUrl:
+              type: string
 
     JobApplicationApiResponse:
       type: object
@@ -651,6 +1055,21 @@ components:
               type: array
               items:
                 type: string
+            preparationRoadmap:
+              type: array
+              items:
+                type: string
+            interviewQuestions:
+              type: array
+              items:
+                type: object
+                properties:
+                  question:
+                    type: string
+                  category:
+                    type: string
+                  context:
+                    type: string
 
     DashboardMetricsApiResponse:
       type: object

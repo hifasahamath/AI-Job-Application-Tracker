@@ -10,13 +10,15 @@ This document details the system design, component responsibilities, database sc
 graph TD
     Client["Next.js 14 Web Frontend<br/>(React, TypeScript, Tailwind CSS)"]
     WSO2["WSO2 API Platform Cloud Gateway<br/>(Rate Limiting, Subscriptions, Versioning)"]
-    Backend["Spring Boot 3 REST API<br/>(Java 21, Spring Security, JPA/Hibernate)"]
+    Backend["Spring Boot 3 REST API<br/>(Java 21, Spring Security, JPA/Hibernate, Apache Tika)"]
     Postgres[("Supabase PostgreSQL<br/>Normalized Relational DB")]
+    SupabaseStore[("Supabase Storage<br/>Profile Avatars Bucket")]
     Gemini["Google Gemini 1.5/2.5 Flash API<br/>(Structured LLM Job Evaluation)"]
 
     Client -->|HTTPS + JWT / API Key| WSO2
     WSO2 -->|Managed API Route| Backend
     Backend -->|JDBC / Hibernate| Postgres
+    Backend -->|REST S3 API| SupabaseStore
     Backend -->|REST / JSON Schema| Gemini
 ```
 
@@ -29,6 +31,7 @@ graph TD
 - **Kanban Board**: Drag-and-drop / single-click stage transitions with optimistic UI updates.
 - **AI Studio**: Interactive form feeding job descriptions and candidate skills into Gemini AI, rendering visual match gauges and preparation roadmaps.
 - **Interview Hub**: Chronological schedule cards with countdown timers, status changers, and direct Google Meet / Zoom launchers.
+- **Profile & Resume Manager**: Avatar upload with magic-byte validation and automated CV parsing.
 
 ### API Gateway Layer (WSO2 API Platform Cloud)
 - **API Publishing & Versioning**: Exposes `/job-tracker/v1` mapped to production Spring Boot upstream.
@@ -40,6 +43,8 @@ graph TD
 - **Layered Architecture**: Controller → Service → Repository. Thin controllers with `@Valid` DTO validation.
 - **Security**: Spring Security with stateless `JwtAuthenticationFilter`, BCrypt hashing, and user-isolated multi-tenant data access.
 - **Persistence**: Spring Data JPA with PostgreSQL, indexing on foreign keys and search columns, and custom JPQL metrics queries.
+- **Supabase Storage Service**: Multi-layer security validation (magic byte header inspection, MIME whitelist, size clamping) for avatar asset storage.
+- **Resume Parser Service**: Apache Tika document analysis extracting text from PDF, DOCX, and TXT resumes.
 - **Gemini AI Service**: Resilient client enforcing strict JSON schema, match score validation, retry handling, and fallback capabilities.
 
 ---
@@ -63,6 +68,8 @@ erDiagram
         VARCHAR full_name
         VARCHAR target_role
         TEXT skills_summary
+        TEXT resume_text
+        VARCHAR profile_picture_url
         TIMESTAMP created_at
         TIMESTAMP updated_at
     }
