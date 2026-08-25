@@ -30,6 +30,12 @@
    - Decoupled API Gateway architecture with pass-through JWT token security.
    - Traffic monitoring and latency analytics.
 
+5. **Comprehensive Analytics Dashboard**
+   - High-level KPI metrics (Total Applications, AI Analyses, Average Match Score).
+   - Application status breakdowns and visual funnels.
+   - Smart alerts for applications requiring attention (e.g., upcoming deadlines, stalling applications).
+   - Quick access to recent applications and upcoming interviews.
+
 ---
 
 ## 🏗️ Architecture & Technology Stack
