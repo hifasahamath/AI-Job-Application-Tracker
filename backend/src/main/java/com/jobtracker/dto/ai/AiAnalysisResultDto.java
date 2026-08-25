@@ -8,6 +8,8 @@ public class AiAnalysisResultDto {
     private String analysisSummary;
     private List<String> matchingSkills;
     private List<String> missingSkills;
+    private List<String> cvImprovements;
+    private List<RequirementAnalysisDto> requirementAnalysis;
     private List<PreparationAreaDto> recommendedPreparationAreas;
     private List<InterviewQuestionDto> personalizedInterviewQuestions;
 
@@ -15,12 +17,16 @@ public class AiAnalysisResultDto {
     }
 
     public AiAnalysisResultDto(Integer matchScore, String analysisSummary, List<String> matchingSkills,
-                               List<String> missingSkills, List<PreparationAreaDto> recommendedPreparationAreas,
+                               List<String> missingSkills, List<String> cvImprovements, 
+                               List<RequirementAnalysisDto> requirementAnalysis,
+                               List<PreparationAreaDto> recommendedPreparationAreas,
                                List<InterviewQuestionDto> personalizedInterviewQuestions) {
         this.matchScore = matchScore;
         this.analysisSummary = analysisSummary;
         this.matchingSkills = matchingSkills;
         this.missingSkills = missingSkills;
+        this.cvImprovements = cvImprovements;
+        this.requirementAnalysis = requirementAnalysis;
         this.recommendedPreparationAreas = recommendedPreparationAreas;
         this.personalizedInterviewQuestions = personalizedInterviewQuestions;
     }
@@ -71,5 +77,21 @@ public class AiAnalysisResultDto {
 
     public void setPersonalizedInterviewQuestions(List<InterviewQuestionDto> personalizedInterviewQuestions) {
         this.personalizedInterviewQuestions = personalizedInterviewQuestions;
+    }
+
+    public List<String> getCvImprovements() {
+        return cvImprovements;
+    }
+
+    public void setCvImprovements(List<String> cvImprovements) {
+        this.cvImprovements = cvImprovements;
+    }
+
+    public List<RequirementAnalysisDto> getRequirementAnalysis() {
+        return requirementAnalysis;
+    }
+
+    public void setRequirementAnalysis(List<RequirementAnalysisDto> requirementAnalysis) {
+        this.requirementAnalysis = requirementAnalysis;
     }
 }

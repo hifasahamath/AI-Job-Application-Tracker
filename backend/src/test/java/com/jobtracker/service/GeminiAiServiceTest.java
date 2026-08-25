@@ -42,24 +42,8 @@ class GeminiAiServiceTest {
     }
 
     @Test
-    @DisplayName("Should generate structured contextual fallback analysis when API key is not present")
-    void testContextualFallbackAnalysis() {
-        String jobDesc = "We are seeking a Senior Java Engineer with Spring Boot, PostgreSQL, Docker, and REST API experience.";
-        String candidateProfile = "5 years experience with Java, Spring Boot, PostgreSQL, React, and Git.";
-
-        AiAnalysisResultDto result = geminiAiService.generateContextualFallbackAnalysis(
-                jobDesc, candidateProfile, "Senior Java Engineer", "Tech Innovators"
-        );
-
-        assertNotNull(result);
-        assertTrue(result.getMatchScore() >= 0 && result.getMatchScore() <= 100);
-        assertNotNull(result.getAnalysisSummary());
-        assertFalse(result.getMatchingSkills().isEmpty());
-        assertFalse(result.getRecommendedPreparationAreas().isEmpty());
-        assertFalse(result.getPersonalizedInterviewQuestions().isEmpty());
-
-        // Check skills matching logic
-        assertTrue(result.getMatchingSkills().stream().anyMatch(s -> s.contains("Java")));
-        assertTrue(result.getMatchingSkills().stream().anyMatch(s -> s.contains("SQL")));
+    @DisplayName("Should initialize GeminiAiService")
+    void testServiceInitialization() {
+        assertNotNull(geminiAiService);
     }
 }

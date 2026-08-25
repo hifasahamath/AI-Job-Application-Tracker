@@ -111,12 +111,11 @@ public class GeminiAiService {
             try {
                 analysisResult = callGeminiApi(request.getJobDescription(), candidateSkills, jobTitle, companyName);
             } catch (Exception e) {
-                log.warn("Gemini API call failed ({}), activating high-accuracy contextual AI analysis engine", e.getMessage());
-                analysisResult = generateContextualFallbackAnalysis(request.getJobDescription(), candidateSkills, jobTitle, companyName);
+                log.error("Gemini API call failed", e);
+                throw new AiServiceException("AI Analysis Service is currently unavailable. Please verify API configuration or try again later. Error: " + e.getMessage());
             }
         } else {
-            log.info("Using intelligent contextual AI analysis engine for role [{}] at [{}]", jobTitle, companyName);
-            analysisResult = generateContextualFallbackAnalysis(request.getJobDescription(), candidateSkills, jobTitle, companyName);
+            throw new AiServiceException("Gemini API key is missing or not configured. Please configure GEMINI_API_KEY.");
         }
 
         // Validate structured response schema
@@ -137,6 +136,8 @@ public class GeminiAiService {
         try {
             aiAnalysis.setMatchingSkills(objectMapper.writeValueAsString(analysisResult.getMatchingSkills()));
             aiAnalysis.setMissingSkills(objectMapper.writeValueAsString(analysisResult.getMissingSkills()));
+            aiAnalysis.setCvImprovements(objectMapper.writeValueAsString(analysisResult.getCvImprovements()));
+            aiAnalysis.setRequirementAnalysis(objectMapper.writeValueAsString(analysisResult.getRequirementAnalysis()));
             aiAnalysis.setPreparationAreas(objectMapper.writeValueAsString(analysisResult.getRecommendedPreparationAreas()));
             aiAnalysis.setInterviewQuestions(objectMapper.writeValueAsString(analysisResult.getPersonalizedInterviewQuestions()));
         } catch (Exception e) {
@@ -182,14 +183,32 @@ public class GeminiAiService {
         String endpoint = String.format("%s/%s:generateContent?key=%s", geminiBaseUrl, geminiModel, geminiApiKey);
 
         String systemPrompt = """
-            You are a strict, world-class Career Strategist and Technical Recruiter.
-            Analyze the following Job Description against the Candidate's Profile / Skills.
-            You MUST return ONLY a valid, strictly formatted JSON object with no markdown fences, no explanatory prefix, and matching this exact structure:
+            You are a strict, highly analytical Applicant Tracking System (ATS) and Technical Recruiter.
+            Your sole purpose is to evaluate the provided Resume against the provided Job Description based STRICTLY on evidence.
+            
+            RULES:
+            1. DO NOT hallucinate, fabricate, or assume experience that is not explicitly stated in the Resume.
+            2. If a skill is required by the Job Description but missing from the Resume, it MUST go into missingSkills.
+            3. Do not penalize the candidate for lacking skills that are not mentioned in the Job Description.
+            4. Provide specific, actionable CV Improvements (e.g., 'Add your React.js experience to the summary section' or 'Quantify the impact of your API redesign in the bullet points'). These should directly help the candidate pass an ATS or recruiter screen for THIS specific job.
+            
+            You MUST return ONLY a valid, strictly formatted JSON object matching this exact structure:
             {
-              "matchScore": <integer between 0 and 100 representing realistic qualification fit>,
-              "analysisSummary": "<2-3 paragraph detailed breakdown of overall fit, strengths, and risk areas>",
+              "matchScore": <integer between 0 and 100 representing strict evidence-based qualification fit>,
+              "analysisSummary": "<2-3 paragraph detailed breakdown of fit, strengths, and risk areas based on evidence>",
+              "requirementAnalysis": [
+                {
+                  "requirement": "<The specific requirement from the JD>",
+                  "category": "<Technical | Experience | Soft Skill | Education>",
+                  "importance": "<Mandatory | Preferred>",
+                  "cvEvidence": "<Exact quote or summary of evidence from CV, or 'None found'>",
+                  "matchStatus": "<Matched | Partially Matched | Missing | Unclear>",
+                  "reasoning": "<Why you assigned this status>"
+                }
+              ],
               "matchingSkills": ["<skill 1>", "<skill 2>", ...],
               "missingSkills": ["<missing skill 1>", "<missing skill 2>", ...],
+              "cvImprovements": ["<actionable advice 1>", "<actionable advice 2>", ...],
               "recommendedPreparationAreas": [
                 {
                   "topic": "<Core topic name>",
@@ -207,8 +226,8 @@ public class GeminiAiService {
                 }
               ]
             }
-            Ensure matchScore is an integer between 0 and 100.
-            Provide at least 3 matching skills, at least 2 missing skills or expansion areas, at least 3 preparation areas, and at least 4 realistic interview questions.
+            Ensure matchScore is an integer between 0 and 100 calculated deterministically based on the requirementAnalysis matchStatus outcomes.
+            Provide at least 3 matching skills, at least 2 missing skills, at least 3 cv improvements, at least 3 preparation areas, and at least 4 interview questions.
             """;
 
         String userContent = String.format("""
@@ -233,7 +252,7 @@ public class GeminiAiService {
 
         // Generation Config with JSON response enforcement
         Map<String, Object> generationConfig = new HashMap<>();
-        generationConfig.put("temperature", 0.2);
+        generationConfig.put("temperature", 0.0);
         generationConfig.put("responseMimeType", "application/json");
         requestBody.put("generationConfig", generationConfig);
 
@@ -324,117 +343,21 @@ public class GeminiAiService {
         if (result.getMissingSkills() == null) {
             result.setMissingSkills(new ArrayList<>());
         }
+        if (result.getCvImprovements() == null) {
+            result.setCvImprovements(new ArrayList<>());
+        }
         if (result.getRecommendedPreparationAreas() == null) {
             result.setRecommendedPreparationAreas(new ArrayList<>());
         }
         if (result.getPersonalizedInterviewQuestions() == null) {
             result.setPersonalizedInterviewQuestions(new ArrayList<>());
         }
+        if (result.getRequirementAnalysis() == null) {
+            result.setRequirementAnalysis(new ArrayList<>());
+        }
     }
 
-    /**
-     * Intelligent local analyzer used as graceful fallback when API key is unconfigured.
-     */
-    public AiAnalysisResultDto generateContextualFallbackAnalysis(String jobDescription, String candidateProfile, String jobTitle, String companyName) {
-        String combined = (jobDescription + " " + candidateProfile).toLowerCase();
 
-        List<String> matched = new ArrayList<>();
-        List<String> missing = new ArrayList<>();
-
-        Map<String, String[]> skillMap = new LinkedHashMap<>();
-        skillMap.put("Java / Spring Boot", new String[]{"java", "spring", "spring boot", "jpa", "hibernate", "jvm"});
-        skillMap.put("React / Next.js / TypeScript", new String[]{"react", "next.js", "nextjs", "typescript", "javascript", "tailwind", "redux", "zustand"});
-        skillMap.put("QA Automation & Testing", new String[]{"qa", "quality assurance", "selenium", "cypress", "playwright", "test automation", "testng", "cucumber", "junit", "mockito", "jest", "postman"});
-        skillMap.put("PostgreSQL / Database Engineering", new String[]{"sql", "postgresql", "postgres", "mysql", "database", "supabase", "rdbms", "indexing"});
-        skillMap.put("REST API & Microservices", new String[]{"rest", "api", "microservices", "swagger", "openapi", "json", "endpoints"});
-        skillMap.put("Docker & Containerization", new String[]{"docker", "container", "kubernetes", "k8s", "containerization"});
-        skillMap.put("Cloud & DevOps / CI/CD", new String[]{"aws", "gcp", "azure", "cloud", "ci/cd", "github actions", "deploy", "pipeline"});
-        skillMap.put("API Gateways & Security", new String[]{"wso2", "api gateway", "throttling", "rate limit", "oauth", "jwt", "auth"});
-        skillMap.put("Agile & SDLC Delivery", new String[]{"agile", "scrum", "jira", "git", "github", "sdlc", "ci"});
-
-        for (Map.Entry<String, String[]> entry : skillMap.entrySet()) {
-            boolean inCandidate = Arrays.stream(entry.getValue()).anyMatch(candidateProfile.toLowerCase()::contains);
-            boolean inJob = Arrays.stream(entry.getValue()).anyMatch(jobDescription.toLowerCase()::contains);
-
-            if (inCandidate && inJob) {
-                matched.add(entry.getKey());
-            } else if (inJob && !inCandidate) {
-                missing.add(entry.getKey());
-            } else if (inCandidate) {
-                matched.add(entry.getKey());
-            }
-        }
-
-        if (matched.isEmpty()) {
-            matched.addAll(List.of("Core Software Engineering", "Problem Solving", "Technical Architecture"));
-        }
-        if (missing.isEmpty()) {
-            missing.addAll(List.of("Enterprise Scale Optimization", "Distributed Caching & Fault Tolerance"));
-        }
-
-        int baseScore = 65 + Math.min(25, matched.size() * 5) - Math.min(15, missing.size() * 3);
-        int finalScore = Math.max(40, Math.min(95, baseScore));
-
-        String summary = String.format(
-                "Strong candidate alignment for the %s position at %s with %d matching core technical competencies. " +
-                "The candidate displays strong foundational expertise in %s, with opportunities to sharpen focus around %s.",
-                jobTitle,
-                companyName,
-                matched.size(),
-                String.join(", ", matched.subList(0, Math.min(3, matched.size()))),
-                String.join(", ", missing.subList(0, Math.min(2, missing.size())))
-        );
-
-        List<PreparationAreaDto> prepAreas = List.of(
-                new PreparationAreaDto(
-                        "System Architecture & Scaling",
-                        "HIGH",
-                        "Prepare to discuss high-throughput endpoint design, caching strategies, and database query optimization for " + jobTitle + ".",
-                        List.of("Designing Data-Intensive Applications", "System Design Primer")
-                ),
-                new PreparationAreaDto(
-                        "API Management & Security",
-                        "MEDIUM",
-                        "Review API rate limiting policies, OAuth2 token pass-through, and gateway-level mediation patterns in enterprise architectures.",
-                        List.of("WSO2 API Platform Cloud Documentation", "RFC 6749 OAuth 2.0")
-                ),
-                new PreparationAreaDto(
-                        "Scenario-Based Behavioral & Project Delivery",
-                        "HIGH",
-                        "Structure your STAR stories around complex cross-functional deliverables, overcoming ambiguous requirements, and architectural trade-offs.",
-                        List.of("STAR Interview Method", "Leadership Principles")
-                )
-        );
-
-        List<InterviewQuestionDto> questions = List.of(
-                new InterviewQuestionDto(
-                        "Technical",
-                        String.format("How would you design and optimize a secure REST API backend for %s when handling peak traffic bursts?", companyName),
-                        "Evaluates real-world backend resilience, caching, connection pooling, and error handling capabilities.",
-                        "Discuss connection pooling, idempotency keys, indexing strategies, and circuit breakers."
-                ),
-                new InterviewQuestionDto(
-                        "Architecture",
-                        "How would you integrate an API Management layer like WSO2 Cloud to enforce rate limits without adding significant latency?",
-                        "Assesses understanding of gateway mediation, throttling tiers, and decoupled security.",
-                        "Explain token caching, rate limiting algorithms (token bucket/leaky bucket), and upstream health checks."
-                ),
-                new InterviewQuestionDto(
-                        "Behavioral",
-                        "Tell me about a time you had to quickly master an unfamiliar technology or API to deliver a critical milestone.",
-                        "Tests adaptability, fast learning curve, and proactive problem solving under pressure.",
-                        "Use the STAR method emphasizing clear research, isolating prototypes, and delivering reliably."
-                ),
-                new InterviewQuestionDto(
-                        "System Design",
-                        "Walk us through how you design database schemas to prevent N+1 queries and concurrency race conditions in transactional workflows.",
-                        "Checks deep PostgreSQL/relational database engineering competence.",
-                        "Mention JPA fetch joins, optimistic vs pessimistic locking, and composite indexing."
-                )
-        );
-
-        return new AiAnalysisResultDto(finalScore, summary, matched, missing, prepAreas, questions);
-    }
 
     public AiAnalysisResponse mapToResponse(AiAnalysis entity) {
         if (entity == null) return null;
@@ -460,8 +383,14 @@ public class GeminiAiService {
             if (StringUtils.hasText(entity.getMissingSkills())) {
                 response.setMissingSkills(objectMapper.readValue(entity.getMissingSkills(), new TypeReference<List<String>>() {}));
             }
+            if (StringUtils.hasText(entity.getCvImprovements())) {
+                response.setCvImprovements(objectMapper.readValue(entity.getCvImprovements(), new TypeReference<List<String>>() {}));
+            }
             if (StringUtils.hasText(entity.getPreparationAreas())) {
                 response.setPreparationAreas(objectMapper.readValue(entity.getPreparationAreas(), new TypeReference<List<PreparationAreaDto>>() {}));
+            }
+            if (StringUtils.hasText(entity.getRequirementAnalysis())) {
+                response.setRequirementAnalysis(objectMapper.readValue(entity.getRequirementAnalysis(), new TypeReference<List<RequirementAnalysisDto>>() {}));
             }
             if (StringUtils.hasText(entity.getInterviewQuestions())) {
                 response.setInterviewQuestions(objectMapper.readValue(entity.getInterviewQuestions(), new TypeReference<List<InterviewQuestionDto>>() {}));

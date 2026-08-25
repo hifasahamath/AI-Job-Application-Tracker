@@ -46,6 +46,12 @@ public class AiAnalysis {
     @Column(name = "missing_skills", columnDefinition = "TEXT")
     private String missingSkills;
 
+    @Column(name = "cv_improvements", columnDefinition = "TEXT")
+    private String cvImprovements;
+
+    @Column(name = "requirement_analysis", columnDefinition = "TEXT")
+    private String requirementAnalysis;
+
     @Column(name = "preparation_areas", columnDefinition = "TEXT")
     private String preparationAreas;
 
@@ -165,6 +171,22 @@ public class AiAnalysis {
 
     public void setMissingSkills(String missingSkills) {
         this.missingSkills = missingSkills;
+    }
+
+    public String getCvImprovements() {
+        return cvImprovements;
+    }
+
+    public void setCvImprovements(String cvImprovements) {
+        this.cvImprovements = cvImprovements;
+    }
+
+    public String getRequirementAnalysis() {
+        return requirementAnalysis;
+    }
+
+    public void setRequirementAnalysis(String requirementAnalysis) {
+        this.requirementAnalysis = requirementAnalysis;
     }
 
     public String getPreparationAreas() {

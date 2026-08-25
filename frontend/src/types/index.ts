@@ -95,6 +95,15 @@ export interface InterviewQuestion {
   suggestedAnswerTip: string;
 }
 
+export interface RequirementAnalysis {
+  requirement: string;
+  category: string;
+  importance: string;
+  cvEvidence: string;
+  matchStatus: 'Matched' | 'Partially Matched' | 'Missing' | 'Unclear';
+  reasoning: string;
+}
+
 export interface AiAnalysis {
   id: string;
   userId: string;
@@ -107,6 +116,8 @@ export interface AiAnalysis {
   analysisSummary: string;
   matchingSkills: string[];
   missingSkills: string[];
+  cvImprovements: string[];
+  requirementAnalysis: RequirementAnalysis[];
   preparationAreas: PreparationArea[];
   interviewQuestions: InterviewQuestion[];
   status: AnalysisStatus;

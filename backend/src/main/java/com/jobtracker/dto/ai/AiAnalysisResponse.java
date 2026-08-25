@@ -19,6 +19,8 @@ public class AiAnalysisResponse {
     private String analysisSummary;
     private List<String> matchingSkills;
     private List<String> missingSkills;
+    private List<String> cvImprovements;
+    private List<RequirementAnalysisDto> requirementAnalysis;
     private List<PreparationAreaDto> preparationAreas;
     private List<InterviewQuestionDto> interviewQuestions;
     private AnalysisStatus status;
@@ -145,5 +147,21 @@ public class AiAnalysisResponse {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public List<String> getCvImprovements() {
+        return cvImprovements;
+    }
+
+    public void setCvImprovements(List<String> cvImprovements) {
+        this.cvImprovements = cvImprovements;
+    }
+
+    public List<RequirementAnalysisDto> getRequirementAnalysis() {
+        return requirementAnalysis;
+    }
+
+    public void setRequirementAnalysis(List<RequirementAnalysisDto> requirementAnalysis) {
+        this.requirementAnalysis = requirementAnalysis;
     }
 }

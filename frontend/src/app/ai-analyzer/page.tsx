@@ -97,6 +97,7 @@ export default function AiAnalyzerPage() {
     }
 
     setLoading(true);
+    setCurrentAnalysis(null);
     try {
       const finalResumeText = resumeTab === 'master' 
         ? (user?.resumeText || user?.skillsSummary || '') 
@@ -445,6 +446,67 @@ export default function AiAnalyzerPage() {
                       </div>
                     </div>
                   </div>
+
+                  {currentAnalysis.requirementAnalysis && currentAnalysis.requirementAnalysis.length > 0 && (
+                    <div className="mt-5 space-y-3">
+                      <h3 className="text-xs font-medium uppercase tracking-wide text-gray-700 flex items-center gap-1.5">
+                        <FileText className="w-4 h-4 text-gray-500" />
+                        Detailed Requirement Mapping
+                      </h3>
+                      <div className="border border-gray-200 rounded-md overflow-hidden bg-white">
+                        <table className="w-full text-left text-sm">
+                          <thead className="bg-gray-50 border-b border-gray-200 text-xs text-gray-600 font-medium">
+                            <tr>
+                              <th className="p-3 w-1/3">Job Requirement</th>
+                              <th className="p-3 w-1/3">CV Evidence</th>
+                              <th className="p-3 w-1/4">Match Status</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100 text-gray-700">
+                            {currentAnalysis.requirementAnalysis.map((req, i) => (
+                              <tr key={i} className="hover:bg-gray-50 transition-colors">
+                                <td className="p-3 align-top">
+                                  <span className="block font-medium text-gray-900 mb-1">{req.requirement}</span>
+                                  <span className="text-[10px] uppercase font-bold text-gray-400">{req.category} • {req.importance}</span>
+                                </td>
+                                <td className="p-3 align-top text-xs text-gray-600">
+                                  {req.cvEvidence}
+                                </td>
+                                <td className="p-3 align-top">
+                                  <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
+                                    req.matchStatus === 'Matched' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                                    req.matchStatus === 'Missing' ? 'bg-red-50 text-red-700 border border-red-200' :
+                                    req.matchStatus === 'Partially Matched' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                                    'bg-gray-100 text-gray-700 border border-gray-200'
+                                  }`}>
+                                    {req.matchStatus}
+                                  </span>
+                                  <p className="text-[11px] text-gray-500 mt-1.5 leading-snug">{req.reasoning}</p>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentAnalysis.cvImprovements && currentAnalysis.cvImprovements.length > 0 && (
+                    <div className="mt-4 p-4 rounded-md bg-blue-50 space-y-3">
+                      <h3 className="text-xs font-medium uppercase tracking-wide text-blue-800 flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-blue-600" />
+                        Actionable CV Improvements ({currentAnalysis.cvImprovements.length})
+                      </h3>
+                      <ul className="space-y-2">
+                        {currentAnalysis.cvImprovements.map((improvement, i) => (
+                          <li key={i} className="text-sm text-blue-900 flex items-start gap-2">
+                            <span className="mt-1 block w-1 h-1 rounded-full bg-blue-500 shrink-0" />
+                            <span className="leading-relaxed">{improvement}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
                 {currentAnalysis.preparationAreas && currentAnalysis.preparationAreas.length > 0 && (
