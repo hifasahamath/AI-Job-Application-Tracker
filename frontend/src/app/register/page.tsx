@@ -22,14 +22,25 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName || !email || !password) {
+    if (!fullName.trim() || !email.trim() || !password) {
       error('Full name, email, and password are required.');
+      return;
+    }
+
+    if (password.length < 8) {
+      error('Password must be at least 8 characters long.');
       return;
     }
 
     setLoading(true);
     try {
-      await register(email.trim(), password, fullName.trim(), targetRole.trim(), skillsSummary.trim());
+      await register(
+        email.trim(),
+        password,
+        fullName.trim(),
+        targetRole.trim() || undefined,
+        skillsSummary.trim() || undefined
+      );
       success('Account created successfully!');
       router.push('/dashboard');
     } catch (err: any) {
@@ -90,8 +101,8 @@ export default function RegisterPage() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
-                  minLength={6}
-                  placeholder="Minimum 6 characters"
+                  minLength={8}
+                  placeholder="Minimum 8 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full border border-gray-300 rounded-md px-3 pr-10 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-shadow"

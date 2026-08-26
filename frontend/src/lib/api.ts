@@ -14,14 +14,26 @@ import {
   User
 } from '../types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8085';
+let rawBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080').trim();
+
+// Automatically ensure protocol is present if omitted (e.g. 'project.up.railway.app' -> 'https://project.up.railway.app')
+if (rawBaseUrl && !rawBaseUrl.startsWith('http://') && !rawBaseUrl.startsWith('https://')) {
+  // If it contains localhost or 127.0.0.1, use http://, otherwise use https://
+  if (rawBaseUrl.startsWith('localhost') || rawBaseUrl.startsWith('127.0.0.1')) {
+    rawBaseUrl = `http://${rawBaseUrl}`;
+  } else {
+    rawBaseUrl = `https://${rawBaseUrl}`;
+  }
+}
+
+const API_BASE_URL = rawBaseUrl.replace(/\/+$/, '');
 
 const client: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 35000,
+  timeout: 15000,
 });
 
 // Attach JWT Bearer Token if available
@@ -46,7 +58,24 @@ client.interceptors.response.use(
         window.location.href = '/login';
       }
     }
-    const message = error.response?.data?.message || error.message || 'An unexpected error occurred';
+
+    // Network, DNS, or CORS connection failures
+    if (!error.response) {
+      if (error.code === 'ECONNABORTED' || error.message?.toLowerCase().includes('timeout')) {
+        return Promise.reject(new Error('Backend connection timed out. Please check if your Railway backend is active.'));
+      }
+      return Promise.reject(new Error('Unable to connect to backend server. Please verify your Railway deployment URL and CORS settings.'));
+    }
+
+    const data = error.response.data;
+
+    // Extract structured validation field errors if available
+    if (data?.validationErrors && Array.isArray(data.validationErrors) && data.validationErrors.length > 0) {
+      const formattedErrors = data.validationErrors.map((v: any) => v.message || `${v.field}: invalid value`).join(', ');
+      return Promise.reject(new Error(formattedErrors));
+    }
+
+    const message = data?.message || error.message || 'An unexpected error occurred';
     return Promise.reject(new Error(message));
   }
 );
