@@ -37,11 +37,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <img src="/logo.png" alt="Career AI" className="h-10 w-10 mx-auto mb-4" />
-          <h1 className="text-xl font-semibold text-gray-900">
+    <div className="min-h-[100dvh] flex flex-col justify-center py-8 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <div className="w-full max-w-sm md:max-w-md mx-auto">
+        <div className="text-center mb-6 sm:mb-8">
+          <img src="/logo.png" alt="Career AI" className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-4" />
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 tracking-tight">
             Sign in to Career AI
           </h1>
           <p className="text-sm text-gray-500 mt-1">
@@ -49,7 +49,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+        <div className="bg-white border border-gray-200 rounded-lg p-5 sm:p-6 md:p-8 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
