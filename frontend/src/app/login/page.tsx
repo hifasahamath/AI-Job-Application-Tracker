@@ -37,8 +37,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col justify-center py-8 px-4 sm:px-6 lg:px-8 bg-gray-50">
-      <div className="w-full max-w-sm md:max-w-md mx-auto">
+    <div className="min-h-[100dvh] flex flex-col py-8 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <div className="w-full max-w-sm md:max-w-md m-auto">
         <div className="text-center mb-6 sm:mb-8">
           <img src="/logo.png" alt="Career AI" className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-4" />
           <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 tracking-tight">
@@ -61,7 +61,7 @@ export default function LoginPage() {
                 placeholder="you@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-shadow"
+                className="w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-shadow"
               />
             </div>
 
@@ -76,12 +76,12 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 pr-10 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-shadow"
+                  className="w-full border border-gray-300 rounded-md px-3 pr-10 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-shadow"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2.5 top-2 p-0.5 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600 transition-colors"
                   title={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
