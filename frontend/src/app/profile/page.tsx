@@ -158,7 +158,7 @@ export default function ProfilePage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-gray-200">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2.5 tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2 sm:gap-2.5 tracking-tight">
               <FileText className="w-6 h-6 text-gray-400" />
               Profile & Master CV
             </h1>
@@ -187,7 +187,7 @@ export default function ProfilePage() {
             </h2>
 
             {/* Profile Picture Section */}
-            <div className="flex items-center gap-6 pb-6 border-b border-gray-100">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 pb-6 border-b border-gray-100">
               <div className="relative group">
                 {user?.profilePictureUrl ? (
                   <img
@@ -214,7 +214,7 @@ export default function ProfilePage() {
                 </button>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 text-center sm:text-left">
                 <div>
                   <h3 className="text-sm font-medium text-gray-900">Profile Photo</h3>
                   <p className="text-xs text-gray-500 mt-0.5">PNG, JPG, GIF or WebP. Max 5MB.</p>

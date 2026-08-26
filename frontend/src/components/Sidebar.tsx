@@ -111,15 +111,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen = false, onCloseM
       {isMobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
           <div
-            className="fixed inset-0 bg-gray-900/20 transition-opacity"
+            className="fixed inset-0 bg-gray-900/20 transition-opacity animate-fade-in"
             onClick={onCloseMobile}
           />
-          <aside className="fixed inset-y-0 left-0 w-72 bg-[#f4f5f7] border-r border-gray-200 z-50 animate-fade-in flex flex-col pt-2">
+          <aside className="fixed inset-y-0 left-0 w-[min(18rem,85vw)] bg-[#f4f5f7] border-r border-gray-200 z-50 animate-slide-in-left flex flex-col pt-2 safe-area-bottom">
             <div className="flex items-center justify-end px-3 py-2">
               {onCloseMobile && (
                 <button
                   onClick={onCloseMobile}
-                  className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+                  className="p-2 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100"
                 >
                   <X className="w-5 h-5" />
                 </button>

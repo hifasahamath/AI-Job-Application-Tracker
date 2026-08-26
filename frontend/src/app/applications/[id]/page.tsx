@@ -179,7 +179,7 @@ export default function ApplicationDetailPage() {
     <AppShell>
       <div className="space-y-5">
         {/* Back & Actions */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <Link
             href="/applications"
             className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
@@ -206,11 +206,11 @@ export default function ApplicationDetailPage() {
         </div>
 
         {/* Header Card */}
-        <div className="bg-white border border-gray-200 rounded-lg p-5 sm:p-6">
+        <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-5 md:p-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="text-xl font-semibold text-gray-900">
+                <h1 className="text-lg sm:text-xl font-semibold text-gray-900">
                   {application.jobTitle}
                 </h1>
                 <PriorityBadge priority={application.priority} />
@@ -288,7 +288,7 @@ export default function ApplicationDetailPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-0.5 border-b border-gray-200 overflow-x-auto">
+        <div className="flex items-center gap-0.5 border-b border-gray-200 overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
           {tabs.map((tab) => (
             <button
               key={tab.key}

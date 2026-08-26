@@ -27,7 +27,7 @@ export const KanbanColumn: React.FC<KanbanColumnProps> = ({
   onStatusChange,
 }) => {
   return (
-    <div className="flex flex-col min-w-[300px] w-[320px] shrink-0 rounded-xl bg-gray-50/80 border border-gray-200 shadow-sm h-full">
+    <div className="flex flex-col min-w-[260px] sm:min-w-[300px] w-[280px] sm:w-[320px] shrink-0 rounded-xl bg-gray-50/80 border border-gray-200 shadow-sm h-full">
       {/* Column header — sticky within the column */}
       <div className="flex items-center justify-between p-3.5 px-4 border-b border-gray-200/60">
         <div className="flex items-center gap-2.5">

@@ -136,7 +136,7 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Round Type</label>
               <select value={roundType} onChange={(e) => setRoundType(e.target.value as RoundType)} className={inputClass}>
@@ -155,7 +155,7 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Date <span className="text-red-500">*</span></label>
               <input type="date" required value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
@@ -166,7 +166,7 @@ export const InterviewModal: React.FC<InterviewModalProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={labelClass}>Duration</label>
               <select value={durationMinutes} onChange={(e) => setDurationMinutes(parseInt(e.target.value))} className={inputClass}>

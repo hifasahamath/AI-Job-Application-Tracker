@@ -196,18 +196,18 @@ function ApplicationsListContent() {
           </div>
         </div>
 
-        {/* Table */}
+        {/* Table — Desktop / Card list — Mobile */}
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-xs text-gray-500 font-medium border-b border-gray-200">
+              <thead className="bg-gray-50 text-xs text-gray-500 font-medium border-b border-gray-200 hidden md:table-header-group">
                 <tr>
                   <th className="px-4 py-3">Company & Role</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Priority</th>
-                  <th className="px-4 py-3">Salary</th>
-                  <th className="px-4 py-3">AI Match</th>
-                  <th className="px-4 py-3">Dates</th>
+                  <th className="px-4 py-3 hidden lg:table-cell">Salary</th>
+                  <th className="px-4 py-3 hidden lg:table-cell">AI Match</th>
+                  <th className="px-4 py-3 hidden xl:table-cell">Dates</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
@@ -231,21 +231,28 @@ function ApplicationsListContent() {
                   applications.map((app) => (
                     <tr
                       key={app.id}
-                      className="hover:bg-gray-50 transition-colors cursor-pointer"
+                      className="flex flex-col md:table-row hover:bg-gray-50 transition-colors cursor-pointer border-b border-gray-100 md:border-b-0"
                       onClick={() => router.push(`/applications/${app.id}`)}
                     >
-                      <td className="px-4 py-3.5">
-                        <div className="space-y-0.5">
-                          <span className="font-medium text-gray-900 block">{app.jobTitle}</span>
-                          <span className="text-xs text-gray-500 flex items-center gap-1">
-                            <Building className="w-3 h-3 text-gray-400" />
-                            {app.company?.name} · {app.workLocationType}
-                          </span>
+                      <td className="px-3 sm:px-4 py-3 md:py-3.5">
+                        <div className="flex items-start justify-between md:block gap-2">
+                          <div className="space-y-0.5">
+                            <span className="font-medium text-gray-900 block">{app.jobTitle}</span>
+                            <span className="text-xs text-gray-500 flex items-center gap-1">
+                              <Building className="w-3 h-3 text-gray-400" />
+                              {app.company?.name} · {app.workLocationType}
+                            </span>
+                          </div>
+                          {/* Mobile-only status+priority badges */}
+                          <div className="flex items-center gap-1.5 md:hidden shrink-0">
+                            <StatusBadge status={app.status} />
+                            <PriorityBadge priority={app.priority} />
+                          </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3.5"><StatusBadge status={app.status} /></td>
-                      <td className="px-4 py-3.5"><PriorityBadge priority={app.priority} /></td>
-                      <td className="px-4 py-3.5 text-xs text-gray-600">
+                      <td className="px-3 sm:px-4 py-1 md:py-3.5 hidden md:table-cell"><StatusBadge status={app.status} /></td>
+                      <td className="px-3 sm:px-4 py-1 md:py-3.5 hidden md:table-cell"><PriorityBadge priority={app.priority} /></td>
+                      <td className="px-3 sm:px-4 py-1 md:py-3.5 text-xs text-gray-600 hidden lg:table-cell">
                         {app.salaryMin || app.salaryMax ? (
                           <span className="text-emerald-600 font-medium flex items-center gap-0.5">
                             <DollarSign className="w-3 h-3" />
@@ -257,7 +264,7 @@ function ApplicationsListContent() {
                           <span className="text-gray-400">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-3.5">
+                      <td className="px-3 sm:px-4 py-1 md:py-3.5 hidden lg:table-cell">
                         {app.latestMatchScore !== undefined && app.latestMatchScore !== null ? (
                           <div className="flex items-center gap-1.5">
                             <ScoreGauge score={app.latestMatchScore} size="sm" showLabel={false} />
@@ -267,7 +274,7 @@ function ApplicationsListContent() {
                           <span className="text-xs text-gray-400">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-3.5 text-xs text-gray-500">
+                      <td className="px-3 sm:px-4 py-1 md:py-3.5 text-xs text-gray-500 hidden xl:table-cell">
                         {app.appliedDate ? (
                           <span className="text-gray-600">{new Date(app.appliedDate).toLocaleDateString()}</span>
                         ) : (
@@ -279,7 +286,7 @@ function ApplicationsListContent() {
                           </div>
                         )}
                       </td>
-                      <td className="px-4 py-3.5 text-right">
+                      <td className="px-3 sm:px-4 py-2 md:py-3.5 md:text-right">
                         <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={(e) => handleEdit(app, e)}
@@ -313,7 +320,7 @@ function ApplicationsListContent() {
           </div>
 
           {/* Pagination */}
-          <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
+          <div className="px-3 sm:px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
             <span>
               Showing {applications.length} of {totalElements}
             </span>

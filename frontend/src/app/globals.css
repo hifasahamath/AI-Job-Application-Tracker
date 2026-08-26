@@ -100,3 +100,93 @@
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2;
   }
 }
+
+/* ───── Mobile-first responsive enhancements ───── */
+
+/* Prevent iOS auto-zoom on input focus (font-size < 16px triggers zoom) */
+@media screen and (max-width: 767px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="url"],
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  input[type="search"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Ensure touch targets are at least 44×44px on touch devices */
+@media (pointer: coarse) {
+  button,
+  a,
+  [role="button"],
+  select,
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Exception for inline icon buttons that have their own padding */
+  button.p-1,
+  button.p-1\.5,
+  a.p-1,
+  a.p-1\.5 {
+    min-height: 40px;
+    min-width: 40px;
+  }
+}
+
+/* Safe area insets for notched phones */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Mobile slide-in animation for sidebar */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.25s ease-out forwards;
+}
+
+/* Responsive table: horizontally scrollable with shadow hints */
+@media screen and (max-width: 767px) {
+  .mobile-table-wrap {
+    position: relative;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Mobile modal: full screen on small devices */
+@media screen and (max-width: 639px) {
+  .modal-panel {
+    max-height: 100vh !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0.75rem 0.75rem 0 0 !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+}
+
+/* Prevent horizontal overflow on all screens */
+html, body {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}

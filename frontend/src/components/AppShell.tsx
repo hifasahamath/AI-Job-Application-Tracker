@@ -55,7 +55,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
           isMobileOpen={isMobileMenuOpen}
           onCloseMobile={() => setIsMobileMenuOpen(false)}
         />
-        <main className="flex-1 overflow-y-auto p-5 sm:p-6 lg:px-10 lg:py-8">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 lg:px-10 lg:py-8">
           {children}
         </main>
       </div>

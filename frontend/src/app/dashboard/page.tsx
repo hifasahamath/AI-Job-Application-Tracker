@@ -72,50 +72,51 @@ export default function DashboardPage() {
     <AppShell>
       <div className="space-y-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
               Welcome back, {user?.fullName || 'there'}
             </h1>
-            <p className="text-base text-gray-500 mt-1">
+            <p className="text-sm sm:text-base text-gray-500 mt-1">
               Your job search at a glance.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/ai-analyzer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all"
+              className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all"
             >
               <Sparkles className="w-4 h-4 text-gray-500" />
-              AI Analyzer
+              <span className="hidden xs:inline">AI</span> Analyzer
             </Link>
             <button
               onClick={() => setIsAppModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-gray-900 hover:bg-gray-800 text-white transition-all hover:shadow-md active:scale-[0.98]"
+              className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-sm font-medium bg-gray-900 hover:bg-gray-800 text-white transition-all hover:shadow-md active:scale-[0.98]"
             >
               <Plus className="w-4 h-4" />
-              New Application
+              <span className="hidden sm:inline">New Application</span>
+              <span className="sm:hidden">New</span>
             </button>
           </div>
         </div>
 
         {/* Pipeline Counts */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3">
           {pipelineStages.map((stage) => {
             const count = metrics?.statusCounts ? (metrics.statusCounts[stage.status] || 0) : 0;
             return (
               <Link
                 key={stage.status}
                 href={`/applications?status=${stage.status}`}
-                className={`bg-white border border-gray-200 rounded-xl p-4 sm:p-5 hover:border-gray-300 hover:shadow-md transition-all group border-l-[3px] ${stage.borderColor}`}
+                className={`bg-white border border-gray-200 rounded-xl p-3 sm:p-4 lg:p-5 hover:border-gray-300 hover:shadow-md transition-all group border-l-[3px] ${stage.borderColor}`}
               >
-                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <span className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   {stage.label}
                 </span>
-                <span className={`block text-2xl lg:text-3xl font-bold ${stage.color} mt-1.5`}>
+                <span className={`block text-xl sm:text-2xl lg:text-3xl font-bold ${stage.color} mt-1`}>
                   {loading ? (
-                    <span className="inline-block h-8 w-10 bg-gray-100 rounded animate-pulse" />
+                    <span className="inline-block h-7 sm:h-8 w-8 sm:w-10 bg-gray-100 rounded animate-pulse" />
                   ) : count}
                 </span>
               </Link>
@@ -124,7 +125,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Widgets Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {/* Upcoming Interviews */}
           <div className="bg-white border border-gray-200 rounded-xl p-6 flex flex-col shadow-sm">
             <div className="flex items-center justify-between pb-4 border-b border-gray-100">
@@ -314,7 +315,7 @@ export default function DashboardPage() {
               metrics.recentApplications.map((app) => (
                 <div
                   key={app.id}
-                  className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-gray-50/70 px-3 -mx-1 rounded-lg transition-all group"
+                  className="py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 hover:bg-gray-50/70 px-2 sm:px-3 -mx-1 rounded-lg transition-all group"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2.5">
@@ -326,7 +327,7 @@ export default function DashboardPage() {
                       </Link>
                       <PriorityBadge priority={app.priority} />
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-gray-500">
+                    <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500 flex-wrap">
                       <span className="flex items-center gap-1.5 text-gray-600 font-medium">
                         <Building className="w-3.5 h-3.5 text-gray-400" />
                         {app.company?.name}

@@ -23,6 +23,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+      </head>
       <body className={`${inter.className} bg-gray-50 text-gray-900 min-h-screen antialiased`}>
         <AuthProvider>
           <ToastProvider>

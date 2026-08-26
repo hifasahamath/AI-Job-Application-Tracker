@@ -9,14 +9,13 @@ import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, loginDemo } = useAuth();
+  const { login } = useAuth();
   const { success, error } = useToast();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [demoLoading, setDemoLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,19 +33,6 @@ export default function LoginPage() {
       error(err.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleDemoLogin = async () => {
-    setDemoLoading(true);
-    try {
-      await loginDemo();
-      success('Logged in with demo account!');
-      router.push('/dashboard');
-    } catch (err: any) {
-      error(err.message || 'Demo login failed. Please check backend connection.');
-    } finally {
-      setDemoLoading(false);
     }
   };
 
@@ -105,21 +91,12 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading || demoLoading}
+              disabled={loading}
               className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-md text-sm font-medium bg-gray-900 hover:bg-gray-800 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Signing in…' : (
                 <>Sign in <ArrowRight className="w-4 h-4" /></>
               )}
-            </button>
-
-            <button
-              type="button"
-              onClick={handleDemoLogin}
-              disabled={loading || demoLoading}
-              className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-md text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
-            >
-              {demoLoading ? 'Signing in as Demo User…' : '⚡ Sign in with Demo Account'}
             </button>
           </form>
 

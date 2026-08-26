@@ -68,12 +68,12 @@ export default function PipelinePage() {
 
   return (
     <AppShell>
-      <div className="flex flex-col h-full -m-5 sm:-m-6 lg:-mx-10 lg:-my-8">
+      <div className="flex flex-col h-full -m-3 sm:-m-5 md:-m-6 lg:-mx-10 lg:-my-8">
         {/* Pipeline header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 sm:px-6 lg:px-10 pt-6 lg:pt-8 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-3 sm:px-5 md:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-8 pb-4 sm:pb-5">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Pipeline</h1>
-            <p className="text-base text-gray-500 mt-1">Drag-free Kanban view of your application stages.</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Pipeline</h1>
+            <p className="text-sm sm:text-base text-gray-500 mt-1">Drag-free Kanban view of your application stages.</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -94,7 +94,7 @@ export default function PipelinePage() {
         </div>
 
         {/* Pipeline board — independent horizontal scroll, columns scroll vertically */}
-        <div className="flex-1 overflow-x-auto overflow-y-hidden pipeline-board px-5 sm:px-6 lg:px-10 pb-6">
+        <div className="flex-1 overflow-x-auto overflow-y-hidden pipeline-board px-3 sm:px-5 md:px-6 lg:px-10 pb-4 sm:pb-6">
           <div className="flex gap-4 items-start h-full min-w-min">
             {COLUMNS.map((col) => {
               const colApps = applications.filter((app) => app.status === col.status);
