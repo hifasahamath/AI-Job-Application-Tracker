@@ -21,20 +21,31 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Support comma-separated list of origins or wildcard patterns (e.g., https://*.vercel.app, *)
+        List<String> patterns = new java.util.ArrayList<>();
         if (allowedOrigins != null && !allowedOrigins.isBlank()) {
-            List<String> origins = Arrays.stream(allowedOrigins.split(","))
+            patterns.addAll(Arrays.stream(allowedOrigins.split(","))
                     .map(String::trim)
                     .filter(s -> !s.isEmpty())
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()));
+        }
 
-            if (origins.contains("*") || origins.isEmpty()) {
-                configuration.setAllowedOriginPatterns(List.of("*"));
-            } else {
-                configuration.setAllowedOriginPatterns(origins);
-            }
-        } else {
+        // Always ensure *.vercel.app, *.railway.app, and localhost are supported even if CORS_ALLOWED_ORIGINS is set to a restricted list
+        if (patterns.isEmpty() || patterns.contains("*")) {
             configuration.setAllowedOriginPatterns(List.of("*"));
+        } else {
+            if (!patterns.contains("https://*.vercel.app")) {
+                patterns.add("https://*.vercel.app");
+            }
+            if (!patterns.contains("https://*.railway.app")) {
+                patterns.add("https://*.railway.app");
+            }
+            if (!patterns.contains("http://localhost:[*]")) {
+                patterns.add("http://localhost:[*]");
+            }
+            if (!patterns.contains("http://127.0.0.1:[*]")) {
+                patterns.add("http://127.0.0.1:[*]");
+            }
+            configuration.setAllowedOriginPatterns(patterns);
         }
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
