@@ -139,7 +139,7 @@ export default function InterviewsHubPage() {
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 self-end lg:self-center shrink-0">
+                  <div className="flex flex-wrap items-center gap-2 self-start sm:self-end lg:self-center shrink-0">
                     {inv.meetingLink && (
                       <a
                         href={inv.meetingLink}

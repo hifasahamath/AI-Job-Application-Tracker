@@ -222,7 +222,7 @@ export default function AiAnalyzerPage() {
                 </div>
 
                 <div className="border border-gray-200 rounded-lg overflow-hidden">
-                  <div className="bg-gray-50 border-b border-gray-200 p-3 flex items-center justify-between">
+                  <div className="bg-gray-50 border-b border-gray-200 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <span className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
                       <FileText className="w-4 h-4 text-gray-500" />
                       Resume for this job
@@ -276,7 +276,7 @@ export default function AiAnalyzerPage() {
                       </div>
                     ) : (
                       <div className="space-y-3">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <span className="text-xs text-gray-500">Custom resume for this position:</span>
                           <div className="flex items-center gap-3 text-xs font-medium">
                             <button
@@ -453,8 +453,8 @@ export default function AiAnalyzerPage() {
                         <FileText className="w-4 h-4 text-gray-500" />
                         Detailed Requirement Mapping
                       </h3>
-                      <div className="border border-gray-200 rounded-md overflow-hidden bg-white">
-                        <table className="w-full text-left text-sm">
+                      <div className="border border-gray-200 rounded-md overflow-x-auto bg-white">
+                        <table className="w-full text-left text-sm min-w-[600px]">
                           <thead className="bg-gray-50 border-b border-gray-200 text-xs text-gray-600 font-medium">
                             <tr>
                               <th className="p-3 w-1/3">Job Requirement</th>
